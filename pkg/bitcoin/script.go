@@ -298,6 +298,19 @@ func (se *ScriptEngine) isTrue(data []byte) bool {
 	return last != 0 && last != 0x80
 }
 
+// Script size constants
+const (
+	P2PKHScriptSize         = 25 // OP_DUP OP_HASH160 <20-byte hash> OP_EQUALVERIFY OP_CHECKSIG
+	P2SHScriptSize          = 23 // OP_HASH160 <20-byte hash> OP_EQUAL
+	P2WPKHScriptSize        = 22 // OP_0 <20-byte hash>
+	P2WSHScriptSize         = 34 // OP_0 <32-byte hash>
+	P2TRScriptSize          = 34 // OP_1 <32-byte key>
+	CompressedPubKeySize    = 33 // 0x02/0x03 + 32 bytes
+	UncompressedPubKeySize  = 65 // 0x04 + 64 bytes
+	Hash160Size             = 20 // RIPEMD160 output
+	Hash256Size             = 32 // SHA256 output
+)
+
 // AnalyzeScript determines the type of a script
 func (s Script) AnalyzeScript() ScriptType {
 	if len(s) == 0 {
@@ -305,30 +318,65 @@ func (s Script) AnalyzeScript() ScriptType {
 	}
 
 	// P2PKH: OP_DUP OP_HASH160 <20-byte hash> OP_EQUALVERIFY OP_CHECKSIG
-	if len(s) == 25 &&
+	if len(s) == P2PKHScriptSize &&
 		s[0] == byte(OP_DUP) &&
 		s[1] == byte(OP_HASH160) &&
-		s[2] == 20 &&
+		s[2] == Hash160Size &&
 		s[23] == byte(OP_EQUALVERIFY) &&
 		s[24] == byte(OP_CHECKSIG) {
 		return ScriptTypeP2PKH
 	}
 
 	// P2SH: OP_HASH160 <20-byte hash> OP_EQUAL
-	if len(s) == 23 &&
+	if len(s) == P2SHScriptSize &&
 		s[0] == byte(OP_HASH160) &&
-		s[1] == 20 &&
+		s[1] == Hash160Size &&
 		s[22] == byte(OP_EQUAL) {
 		return ScriptTypeP2SH
+	}
+
+	// P2PK: <pubkey> OP_CHECKSIG
+	if len(s) >= 35 && s[len(s)-1] == byte(OP_CHECKSIG) {
+		// Check for compressed pubkey (push 33 + 33-byte key + OP_CHECKSIG)
+		if len(s) >= 35 && s[0] == CompressedPubKeySize && (s[1] == 0x02 || s[1] == 0x03) {
+			return ScriptTypeP2PK
+		}
+		// Check for uncompressed pubkey (push 65 + 65-byte key + OP_CHECKSIG)
+		if len(s) >= 67 && s[0] == UncompressedPubKeySize && s[1] == 0x04 {
+			return ScriptTypeP2PK
+		}
+	}
+
+	// P2WPKH: OP_0 <20-byte hash>
+	if len(s) == P2WPKHScriptSize && s[0] == byte(OP_0) && s[1] == Hash160Size {
+		return ScriptTypeP2WPKH
+	}
+
+	// P2WSH: OP_0 <32-byte hash>
+	if len(s) == P2WSHScriptSize && s[0] == byte(OP_0) && s[1] == Hash256Size {
+		return ScriptTypeP2WSH
+	}
+
+	// P2TR: OP_1 <32-byte key>
+	if len(s) == P2TRScriptSize && s[0] == byte(OP_1) && s[1] == Hash256Size {
+		return ScriptTypeP2TR
+	}
+
+	// Multisig: OP_M <pubkey1> ... <pubkeyN> OP_N OP_CHECKMULTISIG
+	if len(s) >= 4 && s[len(s)-1] == byte(OP_CHECKMULTISIG) {
+		// Check if starts with OP_1 through OP_16 (0x51-0x60)
+		if s[0] >= 0x51 && s[0] <= 0x60 {
+			// Check if second-to-last byte is also OP_1 through OP_16
+			if s[len(s)-2] >= 0x51 && s[len(s)-2] <= 0x60 {
+				return ScriptTypeMultisig
+			}
+		}
 	}
 
 	// OP_RETURN (null data)
 	if len(s) > 0 && s[0] == byte(OP_RETURN) {
 		return ScriptTypeNullData
 	}
-
-	// TODO: Implement detection for other script types
-	// - P2PK, P2WPKH, P2WSH, P2TR, Multisig
 
 	return ScriptTypeUnknown
 }
@@ -337,17 +385,40 @@ func (s Script) AnalyzeScript() ScriptType {
 func (s Script) IsStandard() bool {
 	scriptType := s.AnalyzeScript()
 	switch scriptType {
-	case ScriptTypeP2PKH, ScriptTypeP2SH, ScriptTypeP2WPKH, ScriptTypeP2WSH, ScriptTypeP2TR:
+	case ScriptTypeP2PKH, ScriptTypeP2SH, ScriptTypeP2WPKH, ScriptTypeP2WSH, ScriptTypeP2TR, ScriptTypeP2PK:
 		return true
 	case ScriptTypeNullData:
 		// OP_RETURN scripts are standard if they're not too large
 		return len(s) <= 80
 	case ScriptTypeMultisig:
-		// TODO: Validate multisig constraints (M-of-N limits)
-		return true
+		// Validate multisig constraints (M-of-N limits)
+		return s.isStandardMultisig()
 	default:
 		return false
 	}
+}
+
+// isStandardMultisig checks if a multisig script meets standardness rules
+func (s Script) isStandardMultisig() bool {
+	if len(s) < 4 || s[len(s)-1] != byte(OP_CHECKMULTISIG) {
+		return false
+	}
+
+	// Check if starts with OP_1 through OP_3 (standard M values)
+	if s[0] < 0x51 || s[0] > 0x53 {
+		return false // Only 1-of-N, 2-of-N, 3-of-N are standard
+	}
+
+	// Check if second-to-last byte is OP_1 through OP_3 (standard N values)
+	if s[len(s)-2] < 0x51 || s[len(s)-2] > 0x53 {
+		return false // Only M-of-1, M-of-2, M-of-3 are standard
+	}
+
+	// M should be <= N
+	m := s[0] - 0x50  // OP_1 = 0x51, so M = s[0] - 0x50
+	n := s[len(s)-2] - 0x50 // N = s[len(s)-2] - 0x50
+
+	return m <= n && n <= 3 // Standard multisig is limited to 3 keys max
 }
 
 // Helper functions

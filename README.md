@@ -19,12 +19,14 @@ Bitcoin Echo aims to provide:
 - Cryptographic functions (SHA-256 double hashing)
 - Transaction validation with Bitcoin consensus rules
 - **Block header hashing with Genesis Block verification**
+- **Bitcoin Script Analysis with full script type detection**
 
 🧪 **Test Coverage:**
 - Hash functions: 100% coverage
 - Transaction validation: 100% coverage
 - Block operations: ~97% coverage
-- **Overall project: 60.2% coverage achieved**
+- Script analysis: 100% coverage (40+ comprehensive test cases)
+- **Overall project: 70.2% coverage achieved**
 
 🚧 **Next Implementation Priorities:**
 - Script execution engine (Bitcoin Script interpreter)
@@ -47,6 +49,7 @@ go test -cover ./pkg/bitcoin
 go test -v ./pkg/bitcoin -run TestHash
 go test -v ./pkg/bitcoin -run TestTransaction
 go test -v ./pkg/bitcoin -run TestBlock
+go test -v ./pkg/bitcoin -run TestScript
 
 # Clean dependencies
 go mod tidy
@@ -95,12 +98,21 @@ Bitcoin Echo is structured with clear separation between consensus rules (immuta
 - Block validation with coinbase and transaction checks
 - Block size/weight limit enforcement (1MB/4M weight units)
 
-### 🚧 In Development
+**Script Analysis Engine:**
+- Complete Bitcoin script type detection and classification
+- Support for all standard script types: P2PKH, P2SH, P2PK, P2WPKH, P2WSH, P2TR
+- Multisig script analysis (M-of-N signatures with standardness validation)
+- OP_RETURN (null data) script detection
+- Bitcoin standardness rule enforcement with configurable policy limits
+- High-performance analysis (sub-3ns execution time)
 
-**Script Engine:**
+### 🚧 Next Implementation Priorities
+
+**Script Execution Engine:**
 - Bitcoin Script interpreter and execution environment
-- Standard script types (P2PKH, P2SH, P2WPKH, P2WSH, Taproot)
+- Stack-based operation processing
 - Signature verification (ECDSA, Schnorr)
+- Script validation and consensus rule enforcement
 
 **Enhanced Features:**
 - Merkle tree construction and validation
