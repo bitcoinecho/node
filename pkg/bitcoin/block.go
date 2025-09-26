@@ -1,6 +1,8 @@
 package bitcoin
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
 	"time"
 )
@@ -66,13 +68,51 @@ func (b *Block) SetHeight(height int32) {
 // Hash returns the header hash
 func (bh *BlockHeader) Hash() Hash256 {
 	if bh.hash == nil {
-		// TODO: Implement block header serialization and hashing
-		// Block header hash is SHA256(SHA256(serialized_header))
-		// For now, return zero hash
-		hash := ZeroHash
+		// Serialize block header and hash with double SHA-256
+		serialized := bh.serialize()
+		rawHash := DoubleHashSHA256(serialized)
+
+		// Bitcoin displays block hashes in reverse byte order
+		var hash Hash256
+		rawBytes := rawHash.Bytes()
+		for i := 0; i < 32; i++ {
+			hash[i] = rawBytes[31-i]
+		}
+
 		bh.hash = &hash
 	}
 	return *bh.hash
+}
+
+// serialize serializes the block header for hashing
+func (bh *BlockHeader) serialize() []byte {
+	buf := new(bytes.Buffer)
+
+	// Version (4 bytes, little-endian)
+	binary.Write(buf, binary.LittleEndian, bh.Version)
+
+	// Previous block hash (32 bytes) - Bitcoin stores hashes in reverse order
+	prevHashBytes := bh.PrevBlockHash.Bytes()
+	for i := len(prevHashBytes) - 1; i >= 0; i-- {
+		buf.WriteByte(prevHashBytes[i])
+	}
+
+	// Merkle root (32 bytes) - Bitcoin stores hashes in reverse order
+	merkleBytes := bh.MerkleRoot.Bytes()
+	for i := len(merkleBytes) - 1; i >= 0; i-- {
+		buf.WriteByte(merkleBytes[i])
+	}
+
+	// Timestamp (4 bytes, little-endian)
+	binary.Write(buf, binary.LittleEndian, bh.Timestamp)
+
+	// Bits (4 bytes, little-endian)
+	binary.Write(buf, binary.LittleEndian, bh.Bits)
+
+	// Nonce (4 bytes, little-endian)
+	binary.Write(buf, binary.LittleEndian, bh.Nonce)
+
+	return buf.Bytes()
 }
 
 // Time returns the block timestamp as a time.Time
