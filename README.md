@@ -18,15 +18,17 @@ Bitcoin Echo aims to provide:
 - Comprehensive test suite with TDD approach
 - Cryptographic functions (SHA-256 double hashing)
 - Transaction validation with Bitcoin consensus rules
+- **Block header hashing with Genesis Block verification**
 
 🧪 **Test Coverage:**
 - Hash functions: 100% coverage
 - Transaction validation: 100% coverage
-- Overall project: 29.3% baseline established
+- Block operations: ~97% coverage
+- **Overall project: 60.2% coverage achieved**
 
 🚧 **Next Implementation Priorities:**
-- Block validation and consensus rules
-- Script execution engine
+- Script execution engine (Bitcoin Script interpreter)
+- Transaction serialization and witness data
 - P2P networking layer
 
 See [WHITEPAPER.md](./WHITEPAPER.md) for the complete architectural specification and philosophy.
@@ -44,6 +46,7 @@ go test -cover ./pkg/bitcoin
 # Run specific test suites
 go test -v ./pkg/bitcoin -run TestHash
 go test -v ./pkg/bitcoin -run TestTransaction
+go test -v ./pkg/bitcoin -run TestBlock
 
 # Clean dependencies
 go mod tidy
@@ -85,17 +88,24 @@ Bitcoin Echo is structured with clear separation between consensus rules (immuta
 - Input/output validation with Bitcoin money limits (21M BTC)
 - Duplicate input detection and basic consensus checks
 
+**Block System:**
+- Bitcoin-compliant block header serialization (80 bytes)
+- Double SHA-256 block hashing with correct byte ordering
+- ✅ **Genesis Block verification**: `000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f`
+- Block validation with coinbase and transaction checks
+- Block size/weight limit enforcement (1MB/4M weight units)
+
 ### 🚧 In Development
 
-**Block Validation:**
-- Block header validation and proof-of-work verification
-- Merkle tree construction and validation
-- Block size/weight limit enforcement
-
 **Script Engine:**
-- Bitcoin Script execution environment
+- Bitcoin Script interpreter and execution environment
 - Standard script types (P2PKH, P2SH, P2WPKH, P2WSH, Taproot)
 - Signature verification (ECDSA, Schnorr)
+
+**Enhanced Features:**
+- Merkle tree construction and validation
+- Proof-of-work verification
+- Transaction serialization with witness data
 
 ## Documentation
 
