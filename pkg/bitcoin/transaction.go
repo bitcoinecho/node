@@ -246,7 +246,9 @@ func DeserializeTransaction(data []byte) (*Transaction, error) {
 		offset += 4
 
 		// Script length
-		scriptLen, scriptBytesRead, err := DecodeVarInt(data[offset:])
+		var scriptLen uint64
+		var scriptBytesRead int
+		scriptLen, scriptBytesRead, err = DecodeVarInt(data[offset:])
 		if err != nil {
 			return nil, fmt.Errorf("failed to decode input %d script length: %v", i, err)
 		}
@@ -274,7 +276,9 @@ func DeserializeTransaction(data []byte) (*Transaction, error) {
 	}
 
 	// Output count
-	outputCount, outputBytesRead, err := DecodeVarInt(data[offset:])
+	var outputCount uint64
+	var outputBytesRead int
+	outputCount, outputBytesRead, err = DecodeVarInt(data[offset:])
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode output count: %v", err)
 	}
@@ -296,7 +300,9 @@ func DeserializeTransaction(data []byte) (*Transaction, error) {
 		offset += 8
 
 		// Script length
-		scriptLen, scriptBytesRead, err := DecodeVarInt(data[offset:])
+		var scriptLen uint64
+		var scriptBytesRead int
+		scriptLen, scriptBytesRead, err = DecodeVarInt(data[offset:])
 		if err != nil {
 			return nil, fmt.Errorf("failed to decode output %d script length: %v", i, err)
 		}
