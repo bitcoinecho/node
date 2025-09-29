@@ -559,11 +559,16 @@ func createBlockWithTransaction(txType string) *bitcoin.Block {
 
 func createForkChain(length int) []*bitcoin.Block {
 	// Create a competing fork chain that branches from Genesis
-	blocks := make([]*bitcoin.Block, length)
+	// length parameter represents desired total chain length, so create length-1 blocks
+	forkBlocks := length - 1
+	if forkBlocks <= 0 {
+		return []*bitcoin.Block{}
+	}
+	blocks := make([]*bitcoin.Block, forkBlocks)
 
 	genesisHash := mustParseHash("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f")
 
-	for i := 0; i < length; i++ {
+	for i := 0; i < forkBlocks; i++ {
 		var prevHash bitcoin.Hash256
 		if i == 0 {
 			// First fork block builds on Genesis

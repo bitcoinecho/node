@@ -238,9 +238,13 @@ func (bc *BlockChain) handlePotentialReorganization(block *Block) error {
 
 		// Check if this fork is now longer than main chain
 		forkLength := len(bc.forkBlocks[forkKey])
-		mainChainLength := len(bc.blocks) - forkIndex - 1
+		// For reorganization, compare the number of blocks built from the fork point
+		// Main chain blocks from fork point: len(bc.blocks) - forkIndex - 1
+		mainChainFromFork := len(bc.blocks) - forkIndex - 1
 
-		if forkLength > mainChainLength {
+
+		// Only reorganize if fork is STRICTLY longer (not equal)
+		if forkLength > mainChainFromFork {
 			// Reorganize to this fork
 			bc.reorganizeToFork(forkIndex, bc.forkBlocks[forkKey])
 		}
@@ -257,11 +261,12 @@ func (bc *BlockChain) handlePotentialReorganization(block *Block) error {
 	forkKey := fmt.Sprintf("fork_%s", block.Header.PrevBlockHash.String())
 	bc.forkBlocks[forkKey] = []*Block{block}
 
-	// Current chain length from fork point
-	currentChainLength := len(bc.blocks) - forkPoint - 1
+	// Compare blocks built from the fork point
+	forkBlocksFromPoint := 1 // This new block
+	mainChainFromFork := len(bc.blocks) - forkPoint - 1
 
-	// New fork has length 1
-	if 1 > currentChainLength {
+
+	if forkBlocksFromPoint > mainChainFromFork {
 		// Reorganize: replace main chain from fork point
 		bc.reorganizeToFork(forkPoint, []*Block{block})
 	}
