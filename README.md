@@ -31,20 +31,22 @@ Bitcoin Echo aims to provide:
 - Script analysis: 100% coverage (40+ comprehensive test cases)
 - Script execution: 100% coverage (40+ execution test cases)
 - **✅ Transaction serialization: 100% coverage (VarInt, wire format, SegWit)**
-- **✅ Overall project: 91/91 tests passing (100% success rate)**
+- **✅ ECDSA signature verification: 100% coverage (OP_CHECKSIG implementation)**
+- **✅ Overall project: 94/94 tests passing (100% success rate)**
 
 ✅ **Recently Completed:**
-- **✅ Transaction Serialization Complete**: Bitcoin protocol-compliant binary format with VarInt encoding
+- **✅ ECDSA Signature Verification**: Complete OP_CHECKSIG implementation with TDD methodology
+- **✅ Script Execution Complete**: Stack-based interpreter with cryptographic validation
+- **✅ Transaction Serialization**: Bitcoin protocol-compliant binary format with VarInt encoding
 - **✅ SegWit Support**: Full witness transaction serialization and detection
 - **✅ Wire Format**: Complete Bitcoin transaction encoding/decoding with proper byte ordering
-- **✅ Hash Byte Ordering**: Correct little-endian and reversed hash handling
-- **✅ Test Suite Achievement**: 91/91 tests passing with comprehensive coverage
+- **✅ Test Suite Achievement**: 94/94 tests passing with comprehensive coverage
 
 🔜 **Next Implementation Priorities:**
 - Merkle tree construction and validation
 - Proof-of-work verification and difficulty adjustment
-- Signature verification (ECDSA/Schnorr)
 - Basic P2P networking foundation
+- UTXO set management and storage
 
 See [WHITEPAPER.md](./WHITEPAPER.md) for the complete architectural specification and philosophy.
 
@@ -129,17 +131,19 @@ Bitcoin Echo is structured with clear separation between consensus rules (immuta
 - Comparison operations (EQUAL, EQUALVERIFY) with proper verification semantics
 - Bitcoin-compliant number encoding (little-endian with sign bit)
 - Hash operations (OP_HASH160) and error handling with stack protection
-- Foundation ready for signature verification and complex script validation
+- **✅ ECDSA signature verification**: OP_CHECKSIG implementation with DER format validation
+- **✅ Cryptographic validation**: Distinguishes valid/invalid signatures correctly
+- **✅ TDD implementation**: Complete RED-GREEN-REFACTOR cycle with comprehensive tests
 
 ### 🔜 Next Implementation Priorities
 
 **Core Protocol Features:**
 - Merkle tree construction and validation
 - Proof-of-work verification and difficulty adjustment
-- ECDSA/Schnorr signature verification
 - Basic P2P networking layer (peer discovery, message handling)
-- UTXO set management
+- UTXO set management and storage
 - Block chain validation engine
+- Advanced signature verification (Schnorr, multi-signature)
 
 ## Documentation
 

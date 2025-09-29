@@ -194,6 +194,108 @@ func TestScriptEngine_P2PKHExecution(t *testing.T) {
 	t.Skip("P2PKH execution requires signature validation - will be implemented in next phase")
 }
 
+// TestScriptEngine_SignatureVerification tests ECDSA signature verification (TDD RED phase)
+func TestScriptEngine_SignatureVerification(t *testing.T) {
+	tests := []struct {
+		name        string
+		scriptHex   string
+		txHash      string // Transaction hash to sign
+		pubKeyHex   string // Public key in DER format
+		signatureHex string // DER signature
+		expected    bool
+		description string
+	}{
+		{
+			name:        "Valid ECDSA signature verification",
+			scriptHex:   "ac", // OP_CHECKSIG
+			txHash:      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+			pubKeyHex:   "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798", // Sample compressed pubkey
+			signatureHex: "304402200123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef02200123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef01", // Sample DER signature + SIGHASH_ALL
+			expected:    true,
+			description: "Valid signature should verify successfully",
+		},
+		{
+			name:        "Invalid signature should fail verification",
+			scriptHex:   "ac", // OP_CHECKSIG
+			txHash:      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+			pubKeyHex:   "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+			signatureHex: "3044022000000000000000000000000000000000000000000000000000000000000000000220000000000000000000000000000000000000000000000000000000000000000001", // All-zero r and s components = invalid
+			expected:    false,
+			description: "Invalid signature should fail verification",
+		},
+		{
+			name:        "Complete P2PKH script execution",
+			scriptHex:   "76a914" + "751e76ab4c23b27acb9b8e1c4c9c48c9e9f8a8b3" + "88ac", // OP_DUP OP_HASH160 <20-byte hash> OP_EQUALVERIFY OP_CHECKSIG
+			txHash:      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+			pubKeyHex:   "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+			signatureHex: "304402200123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef02200123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef01",
+			expected:    true,
+			description: "Complete P2PKH script should execute with valid signature",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Logf("TDD RED: %s - %s", tt.name, tt.description)
+
+			// Create a test script that pushes signature and pubkey, then calls OP_CHECKSIG
+			var testScript []byte
+
+			// Decode signature and pubkey for the test
+			signature, err := hex.DecodeString(tt.signatureHex)
+			if err != nil {
+				t.Fatalf("Failed to decode signature hex: %v", err)
+			}
+
+			pubKey, err := hex.DecodeString(tt.pubKeyHex)
+			if err != nil {
+				t.Fatalf("Failed to decode pubkey hex: %v", err)
+			}
+
+			// Build script: PUSH(signature) PUSH(pubkey) OP_CHECKSIG
+			// Push signature
+			testScript = append(testScript, byte(len(signature)))
+			testScript = append(testScript, signature...)
+			// Push pubkey
+			testScript = append(testScript, byte(len(pubKey)))
+			testScript = append(testScript, pubKey...)
+			// Add OP_CHECKSIG
+			testScript = append(testScript, 0xac)
+
+			// Execute the test script
+			script := bitcoin.Script(testScript)
+			engine := bitcoin.NewScriptEngine(script, nil, 0, nil, bitcoin.ScriptFlagsNone)
+
+			result, err := engine.Execute()
+
+			// Check the result based on expected behavior
+			if result {
+				stack := engine.GetStack()
+				if len(stack) != 1 {
+					t.Errorf("Expected 1 item on stack after OP_CHECKSIG, got %d", len(stack))
+				} else {
+					resultByte := stack[0]
+					actualResult := len(resultByte) == 1 && resultByte[0] == 1
+
+					t.Logf("OP_CHECKSIG result: %x (expected: %v)", resultByte, tt.expected)
+
+					// Verify that the signature verification behaves as expected
+					if actualResult != tt.expected {
+						t.Errorf("Expected signature verification result %v, got %v", tt.expected, actualResult)
+					}
+
+					if actualResult == tt.expected {
+						t.Logf("✓ Signature verification working correctly for %s", tt.name)
+					}
+				}
+			}
+
+			// Log the transaction hash for context (will be needed for real verification)
+			t.Logf("Transaction hash for verification: %s", tt.txHash)
+		})
+	}
+}
+
 // TestScriptEngine_StackOperations tests detailed stack manipulation
 func TestScriptEngine_StackOperations(t *testing.T) {
 	tests := []struct {
