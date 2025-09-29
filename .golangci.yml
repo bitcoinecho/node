@@ -1,0 +1,169 @@
+# Bitcoin Echo Go Linting Configuration
+# Ensures high code quality for consensus-critical Bitcoin protocol implementation
+
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: true
+  skip-dirs:
+    - vendor
+  skip-files:
+    - ".*_test.go$" # Less strict on test files for readability
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+linters-settings:
+  govet:
+    check-shadowing: true
+    settings:
+      printf:
+        funcs:
+          - (github.com/sirupsen/logrus.FieldLogger).Infof
+          - (github.com/sirupsen/logrus.FieldLogger).Warnf
+          - (github.com/sirupsen/logrus.FieldLogger).Errorf
+          - (github.com/sirupsen/logrus.FieldLogger).Fatalf
+
+  golint:
+    min-confidence: 0.8
+
+  gocyclo:
+    min-complexity: 15 # Bitcoin protocol functions can be complex
+
+  maligned:
+    suggest-new: true
+
+  dupl:
+    threshold: 100
+
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+
+  misspell:
+    locale: US
+
+  lll:
+    line-length: 120 # Slightly longer for Bitcoin protocol constants
+
+  goimports:
+    local-prefixes: bitcoinecho.org/node
+
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disabled-checks:
+      - dupImport # https://github.com/go-critic/go-critic/issues/845
+      - ifElseChain
+      - octalLiteral
+      - whyNoLint
+      - wrapperFunc
+
+  funlen:
+    lines: 100
+    statements: 50
+
+  gocognit:
+    min-complexity: 20 # Bitcoin consensus can be complex
+
+  nestif:
+    min-complexity: 4
+
+  godot:
+    scope: declarations
+    capital: false
+
+linters:
+  enable:
+    # Default linters
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+
+    # Additional quality linters
+    - bodyclose
+    - depguard
+    - dogsled
+    - dupl
+    - exportloopref
+    - funlen
+    - gochecknoinits
+    - goconst
+    - gocritic
+    - gocyclo
+    - gofmt
+    - goimports
+    - golint
+    - gomnd
+    - goprintffuncname
+    - gosec
+    - interfacer
+    - lll
+    - maligned
+    - misspell
+    - nakedret
+    - noctx
+    - nolintlint
+    - rowserrcheck
+    - scopelint
+    - sqlclosecheck
+    - stylecheck
+    - unconvert
+    - unparam
+    - whitespace
+
+  disable:
+    - gochecknoglobals # Bitcoin constants need globals
+    - godox # TODOs are okay in development
+
+issues:
+  exclude-rules:
+    # Exclude some linters from running on tests files
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+        - funlen
+        - lll
+        - gocognit
+
+    # Exclude magic number warnings for Bitcoin protocol constants
+    - text: "Magic number"
+      linters:
+        - gomnd
+
+    # Exclude some staticcheck messages for test files
+    - linters:
+        - staticcheck
+      text: "SA9003:"
+
+    # Bitcoin protocol often needs specific magic numbers
+    - path: pkg/bitcoin/
+      text: "Magic number"
+      linters:
+        - gomnd
+
+    # Consensus-critical code may have necessary complexity
+    - path: pkg/bitcoin/
+      text: "cognitive complexity"
+      linters:
+        - gocognit
+
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+  # Show only new issues for incremental improvements
+  new-from-rev: HEAD~1
