@@ -111,7 +111,9 @@ func (tx *Transaction) Serialize() ([]byte, error) {
 	hasWitness := tx.HasWitness()
 
 	// Version (4 bytes, little-endian)
-	binary.Write(&buf, binary.LittleEndian, tx.Version)
+	if err := binary.Write(&buf, binary.LittleEndian, tx.Version); err != nil {
+		return nil, fmt.Errorf("failed to write version: %w", err)
+	}
 
 	// SegWit flag and marker (if witness data present)
 	if hasWitness {
@@ -130,13 +132,17 @@ func (tx *Transaction) Serialize() ([]byte, error) {
 			buf.WriteByte(hashBytes[i])
 		}
 		// Previous output index (4 bytes, little-endian)
-		binary.Write(&buf, binary.LittleEndian, input.PreviousOutput.Index)
+		if err := binary.Write(&buf, binary.LittleEndian, input.PreviousOutput.Index); err != nil {
+			return nil, fmt.Errorf("failed to write previous output index: %w", err)
+		}
 		// Script length (varint)
 		buf.Write(EncodeVarInt(uint64(len(input.ScriptSig))))
 		// Script
 		buf.Write(input.ScriptSig)
 		// Sequence (4 bytes, little-endian)
-		binary.Write(&buf, binary.LittleEndian, input.Sequence)
+		if err := binary.Write(&buf, binary.LittleEndian, input.Sequence); err != nil {
+			return nil, fmt.Errorf("failed to write sequence: %w", err)
+		}
 	}
 
 	// Output count (varint)
@@ -145,7 +151,9 @@ func (tx *Transaction) Serialize() ([]byte, error) {
 	// Outputs
 	for _, output := range tx.Outputs {
 		// Value (8 bytes, little-endian)
-		binary.Write(&buf, binary.LittleEndian, output.Value)
+		if err := binary.Write(&buf, binary.LittleEndian, output.Value); err != nil {
+			return nil, fmt.Errorf("failed to write output value: %w", err)
+		}
 		// Script length (varint)
 		buf.Write(EncodeVarInt(uint64(len(output.ScriptPubKey))))
 		// Script
@@ -182,7 +190,9 @@ func (tx *Transaction) Serialize() ([]byte, error) {
 	}
 
 	// Locktime (4 bytes, little-endian)
-	binary.Write(&buf, binary.LittleEndian, tx.LockTime)
+	if err := binary.Write(&buf, binary.LittleEndian, tx.LockTime); err != nil {
+		return nil, fmt.Errorf("failed to write locktime: %w", err)
+	}
 
 	return buf.Bytes(), nil
 }

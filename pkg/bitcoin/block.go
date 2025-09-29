@@ -69,7 +69,11 @@ func (b *Block) SetHeight(height int32) {
 func (bh *BlockHeader) Hash() Hash256 {
 	if bh.hash == nil {
 		// Serialize block header and hash with double SHA-256
-		serialized := bh.serialize()
+		serialized, err := bh.serialize()
+		if err != nil {
+			// In case of serialization error, return zero hash
+			return ZeroHash
+		}
 		rawHash := DoubleHashSHA256(serialized)
 
 		// Bitcoin displays block hashes in reverse byte order
@@ -85,11 +89,13 @@ func (bh *BlockHeader) Hash() Hash256 {
 }
 
 // serialize serializes the block header for hashing
-func (bh *BlockHeader) serialize() []byte {
+func (bh *BlockHeader) serialize() ([]byte, error) {
 	buf := new(bytes.Buffer)
 
 	// Version (4 bytes, little-endian)
-	binary.Write(buf, binary.LittleEndian, bh.Version)
+	if err := binary.Write(buf, binary.LittleEndian, bh.Version); err != nil {
+		return nil, fmt.Errorf("failed to write version: %w", err)
+	}
 
 	// Previous block hash (32 bytes) - Bitcoin stores hashes in reverse order
 	prevHashBytes := bh.PrevBlockHash.Bytes()
@@ -104,15 +110,21 @@ func (bh *BlockHeader) serialize() []byte {
 	}
 
 	// Timestamp (4 bytes, little-endian)
-	binary.Write(buf, binary.LittleEndian, bh.Timestamp)
+	if err := binary.Write(buf, binary.LittleEndian, bh.Timestamp); err != nil {
+		return nil, fmt.Errorf("failed to write timestamp: %w", err)
+	}
 
 	// Bits (4 bytes, little-endian)
-	binary.Write(buf, binary.LittleEndian, bh.Bits)
+	if err := binary.Write(buf, binary.LittleEndian, bh.Bits); err != nil {
+		return nil, fmt.Errorf("failed to write bits: %w", err)
+	}
 
 	// Nonce (4 bytes, little-endian)
-	binary.Write(buf, binary.LittleEndian, bh.Nonce)
+	if err := binary.Write(buf, binary.LittleEndian, bh.Nonce); err != nil {
+		return nil, fmt.Errorf("failed to write nonce: %w", err)
+	}
 
-	return buf.Bytes()
+	return buf.Bytes(), nil
 }
 
 // Time returns the block timestamp as a time.Time
