@@ -1,20 +1,20 @@
 package bitcoin_test
 
 import (
+	"bitcoinecho.org/node/pkg/bitcoin"
 	"bytes"
 	"encoding/hex"
 	"testing"
-	"bitcoinecho.org/node/pkg/bitcoin"
 )
 
 // TestScriptEngine_Execute tests Bitcoin script execution with real Bitcoin scripts
 func TestScriptEngine_Execute(t *testing.T) {
 	tests := []struct {
 		name       string
-		scriptHex  string           // Script as hex string
-		expected   bool             // Expected execution result
-		finalStack []string         // Expected final stack state (hex strings)
-		flags      bitcoin.ScriptFlags      // Script verification flags
+		scriptHex  string              // Script as hex string
+		expected   bool                // Expected execution result
+		finalStack []string            // Expected final stack state (hex strings)
+		flags      bitcoin.ScriptFlags // Script verification flags
 	}{
 		// Basic stack operations
 		{
@@ -94,7 +94,7 @@ func TestScriptEngine_Execute(t *testing.T) {
 		{
 			name:       "OP_EQUALVERIFY with different values (should fail)",
 			scriptHex:  "515288", // bitcoin.OP_1 bitcoin.OP_2 OP_EQUALVERIFY
-			expected:   false,     // Should fail verification
+			expected:   false,    // Should fail verification
 			finalStack: []string{},
 			flags:      bitcoin.ScriptFlagsNone,
 		},
@@ -112,7 +112,7 @@ func TestScriptEngine_Execute(t *testing.T) {
 		{
 			name:       "Simple P2PKH-like pattern (without signature)",
 			scriptHex:  "76a914" + "b6a9c8c230722b7c748331a8b450f05566dc7d0f" + "87", // bitcoin.OP_DUP OP_HASH160 <hash> OP_EQUAL
-			expected:   false, // Should fail without matching data on stack
+			expected:   false,                                                        // Should fail without matching data on stack
 			finalStack: []string{},
 			flags:      bitcoin.ScriptFlagsNone,
 		},
@@ -197,40 +197,40 @@ func TestScriptEngine_P2PKHExecution(t *testing.T) {
 // TestScriptEngine_SignatureVerification tests ECDSA signature verification (TDD RED phase)
 func TestScriptEngine_SignatureVerification(t *testing.T) {
 	tests := []struct {
-		name        string
-		scriptHex   string
-		txHash      string // Transaction hash to sign
-		pubKeyHex   string // Public key in DER format
+		name         string
+		scriptHex    string
+		txHash       string // Transaction hash to sign
+		pubKeyHex    string // Public key in DER format
 		signatureHex string // DER signature
-		expected    bool
-		description string
+		expected     bool
+		description  string
 	}{
 		{
-			name:        "Valid ECDSA signature verification",
-			scriptHex:   "ac", // OP_CHECKSIG
-			txHash:      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
-			pubKeyHex:   "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798", // Sample compressed pubkey
+			name:         "Valid ECDSA signature verification",
+			scriptHex:    "ac", // OP_CHECKSIG
+			txHash:       "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+			pubKeyHex:    "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",                                                                             // Sample compressed pubkey
 			signatureHex: "304402200123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef02200123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef01", // Sample DER signature + SIGHASH_ALL
-			expected:    true,
-			description: "Valid signature should verify successfully",
+			expected:     true,
+			description:  "Valid signature should verify successfully",
 		},
 		{
-			name:        "Invalid signature should fail verification",
-			scriptHex:   "ac", // OP_CHECKSIG
-			txHash:      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
-			pubKeyHex:   "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+			name:         "Invalid signature should fail verification",
+			scriptHex:    "ac", // OP_CHECKSIG
+			txHash:       "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+			pubKeyHex:    "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
 			signatureHex: "3044022000000000000000000000000000000000000000000000000000000000000000000220000000000000000000000000000000000000000000000000000000000000000001", // All-zero r and s components = invalid
-			expected:    false,
-			description: "Invalid signature should fail verification",
+			expected:     false,
+			description:  "Invalid signature should fail verification",
 		},
 		{
-			name:        "Complete P2PKH script execution",
-			scriptHex:   "76a914" + "751e76ab4c23b27acb9b8e1c4c9c48c9e9f8a8b3" + "88ac", // OP_DUP OP_HASH160 <20-byte hash> OP_EQUALVERIFY OP_CHECKSIG
-			txHash:      "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
-			pubKeyHex:   "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+			name:         "Complete P2PKH script execution",
+			scriptHex:    "76a914" + "751e76ab4c23b27acb9b8e1c4c9c48c9e9f8a8b3" + "88ac", // OP_DUP OP_HASH160 <20-byte hash> OP_EQUALVERIFY OP_CHECKSIG
+			txHash:       "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+			pubKeyHex:    "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
 			signatureHex: "304402200123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef02200123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef01",
-			expected:    true,
-			description: "Complete P2PKH script should execute with valid signature",
+			expected:     true,
+			description:  "Complete P2PKH script should execute with valid signature",
 		},
 	}
 
@@ -299,8 +299,8 @@ func TestScriptEngine_SignatureVerification(t *testing.T) {
 // TestScriptEngine_StackOperations tests detailed stack manipulation
 func TestScriptEngine_StackOperations(t *testing.T) {
 	tests := []struct {
-		name        string
-		operations  []struct {
+		name       string
+		operations []struct {
 			opcode     bitcoin.ScriptOpcode
 			data       []byte // For push operations
 			expectFail bool   // True if this operation should fail
@@ -315,12 +315,12 @@ func TestScriptEngine_StackOperations(t *testing.T) {
 				data       []byte
 				expectFail bool
 			}{
-				{bitcoin.OP_1, nil, false},      // Push 1
-				{bitcoin.OP_2, nil, false},      // Push 2
-				{bitcoin.OP_3, nil, false},      // Push 3
-				{bitcoin.OP_DROP, nil, false},   // Drop 3
-				{bitcoin.OP_SWAP, nil, false},   // Swap 1,2 -> 2,1
-				{bitcoin.OP_DUP, nil, false},    // Duplicate 1 -> 2,1,1
+				{bitcoin.OP_1, nil, false},    // Push 1
+				{bitcoin.OP_2, nil, false},    // Push 2
+				{bitcoin.OP_3, nil, false},    // Push 3
+				{bitcoin.OP_DROP, nil, false}, // Drop 3
+				{bitcoin.OP_SWAP, nil, false}, // Swap 1,2 -> 2,1
+				{bitcoin.OP_DUP, nil, false},  // Duplicate 1 -> 2,1,1
 			},
 			finalStackSize: 3, // Should have [2, 1, 1]
 			description:    "Complex stack manipulation should maintain correct state",
@@ -332,9 +332,9 @@ func TestScriptEngine_StackOperations(t *testing.T) {
 				data       []byte
 				expectFail bool
 			}{
-				{bitcoin.OP_1, nil, false},     // Push 1
-				{bitcoin.OP_DROP, nil, false},  // Drop 1 (stack empty)
-				{bitcoin.OP_DROP, nil, true},   // Try to drop from empty stack - should fail
+				{bitcoin.OP_1, nil, false},    // Push 1
+				{bitcoin.OP_DROP, nil, false}, // Drop 1 (stack empty)
+				{bitcoin.OP_DROP, nil, true},  // Try to drop from empty stack - should fail
 			},
 			finalStackSize: 0,
 			description:    "Operations on empty stack should fail safely",

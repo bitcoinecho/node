@@ -1,26 +1,26 @@
 package bitcoin_test
 
 import (
-	"testing"
 	"bitcoinecho.org/node/pkg/bitcoin"
+	"testing"
 )
 
 // TestBlockChain_Creation tests blockchain creation and initialization (TDD RED phase)
 func TestBlockChain_Creation(t *testing.T) {
 	tests := []struct {
-		name        string
+		name         string
 		genesisBlock *bitcoin.Block
-		description string
+		description  string
 	}{
 		{
-			name:        "Create blockchain with Genesis block",
+			name:         "Create blockchain with Genesis block",
 			genesisBlock: createGenesisBlock(),
-			description: "Blockchain should initialize with Genesis block",
+			description:  "Blockchain should initialize with Genesis block",
 		},
 		{
-			name:        "Create empty blockchain",
+			name:         "Create empty blockchain",
 			genesisBlock: nil,
-			description: "Blockchain should handle empty initialization",
+			description:  "Blockchain should handle empty initialization",
 		},
 	}
 
@@ -196,28 +196,28 @@ func TestBlockChain_Validation(t *testing.T) {
 // TestBlockChain_UTXO_Integration tests blockchain integration with UTXO set (TDD RED phase)
 func TestBlockChain_UTXO_Integration(t *testing.T) {
 	tests := []struct {
-		name        string
-		transactions []string // Transaction types to create
+		name          string
+		transactions  []string // Transaction types to create
 		expectedUTXOs int
-		description string
+		description   string
 	}{
 		{
-			name:        "Genesis block UTXO creation",
-			transactions: []string{"coinbase"},
+			name:          "Genesis block UTXO creation",
+			transactions:  []string{"coinbase"},
 			expectedUTXOs: 1,
-			description: "Genesis coinbase should create initial UTXO",
+			description:   "Genesis coinbase should create initial UTXO",
 		},
 		{
-			name:        "Simple spend and create",
-			transactions: []string{"coinbase", "spend_and_create"},
+			name:          "Simple spend and create",
+			transactions:  []string{"coinbase", "spend_and_create"},
 			expectedUTXOs: 2, // Genesis coinbase + new block coinbase
-			description: "Transaction should update UTXO set correctly",
+			description:   "Transaction should update UTXO set correctly",
 		},
 		{
-			name:        "Multiple transactions",
-			transactions: []string{"coinbase", "spend_create", "spend_create", "spend_only"},
+			name:          "Multiple transactions",
+			transactions:  []string{"coinbase", "spend_create", "spend_create", "spend_only"},
 			expectedUTXOs: 4, // Genesis + 3 new blocks (each adds coinbase)
-			description: "Multiple transactions should maintain correct UTXO count",
+			description:   "Multiple transactions should maintain correct UTXO count",
 		},
 	}
 
@@ -348,7 +348,7 @@ func createValidNextBlock() *bitcoin.Block {
 		Version:       1,
 		PrevBlockHash: mustParseHash("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"),
 		MerkleRoot:    mustParseHash("0000000000000000000000000000000000000000000000000000000000000001"),
-		Timestamp:     1231006505+600, // 10 minutes later
+		Timestamp:     1231006505 + 600, // 10 minutes later
 		Bits:          0x1d00ffff,
 		Nonce:         12345,
 	}
@@ -362,7 +362,7 @@ func createBlockWithInvalidPrevHash() *bitcoin.Block {
 		Version:       1,
 		PrevBlockHash: mustParseHash("1111111111111111111111111111111111111111111111111111111111111111"),
 		MerkleRoot:    mustParseHash("0000000000000000000000000000000000000000000000000000000000000001"),
-		Timestamp:     1231006505+600,
+		Timestamp:     1231006505 + 600,
 		Bits:          0x1d00ffff,
 		Nonce:         12345,
 	}
@@ -376,7 +376,7 @@ func createBlockWithInvalidPoW() *bitcoin.Block {
 		Version:       1,
 		PrevBlockHash: mustParseHash("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"),
 		MerkleRoot:    mustParseHash("0000000000000000000000000000000000000000000000000000000000000001"),
-		Timestamp:     1231006505+600,
+		Timestamp:     1231006505 + 600,
 		Bits:          0x1d00ffff,
 		Nonce:         999999, // Invalid nonce that won't meet difficulty
 	}
@@ -391,7 +391,7 @@ func createValidBlock(height int) *bitcoin.Block {
 		Version:       1,
 		PrevBlockHash: mustParseHash("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"), // Simplified
 		MerkleRoot:    mustParseHash("0000000000000000000000000000000000000000000000000000000000000001"),
-		Timestamp:     uint32(1231006505+height*600),
+		Timestamp:     uint32(1231006505 + height*600),
 		Bits:          0x1d00ffff,
 		Nonce:         uint32(12345 + height),
 	}
@@ -456,7 +456,7 @@ func createValidBlockAfter(prevBlock *bitcoin.Block, height int) *bitcoin.Block 
 		Version:       1,
 		PrevBlockHash: prevBlock.Hash(), // Correct previous hash
 		MerkleRoot:    mustParseHash("0000000000000000000000000000000000000000000000000000000000000001"),
-		Timestamp:     uint32(1231006505+height*600),
+		Timestamp:     uint32(1231006505 + height*600),
 		Bits:          0x1d00ffff,
 		Nonce:         uint32(12345 + height),
 	}

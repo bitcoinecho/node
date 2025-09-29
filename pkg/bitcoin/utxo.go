@@ -7,9 +7,9 @@ import (
 // UTXO represents an Unspent Transaction Output
 // TDD GREEN: Basic implementation to make tests pass
 type UTXO struct {
-	txHash      Hash256
-	outputIndex uint32
-	amount      uint64
+	txHash       Hash256
+	outputIndex  uint32
+	amount       uint64
 	scriptPubKey []byte
 }
 
@@ -18,9 +18,9 @@ func NewUTXO(txHash Hash256, outputIndex uint32, amount uint64, scriptPubKey []b
 	script := make([]byte, len(scriptPubKey))
 	copy(script, scriptPubKey)
 	return &UTXO{
-		txHash:      txHash,
-		outputIndex: outputIndex,
-		amount:      amount,
+		txHash:       txHash,
+		outputIndex:  outputIndex,
+		amount:       amount,
 		scriptPubKey: script,
 	}
 }

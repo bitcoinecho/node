@@ -8,10 +8,10 @@ import (
 
 // Transaction represents a Bitcoin transaction
 type Transaction struct {
-	Version    uint32     `json:"version"`
-	Inputs     []TxInput  `json:"inputs"`
-	Outputs    []TxOutput `json:"outputs"`
-	LockTime   uint32     `json:"locktime"`
+	Version  uint32     `json:"version"`
+	Inputs   []TxInput  `json:"inputs"`
+	Outputs  []TxOutput `json:"outputs"`
+	LockTime uint32     `json:"locktime"`
 
 	// Witness data for SegWit transactions
 	Witnesses []TxWitness `json:"witnesses,omitempty"`
@@ -23,15 +23,15 @@ type Transaction struct {
 
 // TxInput represents a transaction input
 type TxInput struct {
-	PreviousOutput OutPoint  `json:"previous_output"`
-	ScriptSig      []byte    `json:"script_sig"`
-	Sequence       uint32    `json:"sequence"`
-	Witness        [][]byte  `json:"witness,omitempty"` // SegWit witness data
+	PreviousOutput OutPoint `json:"previous_output"`
+	ScriptSig      []byte   `json:"script_sig"`
+	Sequence       uint32   `json:"sequence"`
+	Witness        [][]byte `json:"witness,omitempty"` // SegWit witness data
 }
 
 // TxOutput represents a transaction output
 type TxOutput struct {
-	Value        uint64 `json:"value"`        // Amount in satoshis
+	Value        uint64 `json:"value"` // Amount in satoshis
 	ScriptPubKey []byte `json:"script_pubkey"`
 }
 
@@ -354,8 +354,8 @@ func (tx *Transaction) WitnessHash() Hash256 {
 // IsCoinbase returns true if this is a coinbase transaction
 func (tx *Transaction) IsCoinbase() bool {
 	return len(tx.Inputs) == 1 &&
-		   tx.Inputs[0].PreviousOutput.Hash.IsZero() &&
-		   tx.Inputs[0].PreviousOutput.Index == 0xffffffff
+		tx.Inputs[0].PreviousOutput.Hash.IsZero() &&
+		tx.Inputs[0].PreviousOutput.Index == 0xffffffff
 }
 
 // HasWitness returns true if the transaction has witness data
@@ -443,4 +443,3 @@ func (op OutPoint) String() string {
 func (op OutPoint) IsNull() bool {
 	return op.Hash.IsZero() && op.Index == 0xffffffff
 }
-

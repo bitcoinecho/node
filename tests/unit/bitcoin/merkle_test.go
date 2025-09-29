@@ -1,17 +1,17 @@
 package bitcoin_test
 
 import (
-	"testing"
 	"bitcoinecho.org/node/pkg/bitcoin"
+	"testing"
 )
 
 // TestMerkleTree_Construction tests Merkle tree construction (TDD RED phase)
 func TestMerkleTree_Construction(t *testing.T) {
 	tests := []struct {
-		name        string
-		txHashes    []string // Transaction hashes as hex strings
-		expectedRoot string  // Expected merkle root as hex string
-		description string
+		name         string
+		txHashes     []string // Transaction hashes as hex strings
+		expectedRoot string   // Expected merkle root as hex string
+		description  string
 	}{
 		{
 			name: "Single transaction (Genesis block)",

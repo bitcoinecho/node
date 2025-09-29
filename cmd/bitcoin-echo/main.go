@@ -104,7 +104,7 @@ func demonstrateTypes() {
 	}
 
 	output := bitcoin.TxOutput{
-		Value:        5000000000, // 50 BTC in satoshis
+		Value:        5000000000,               // 50 BTC in satoshis
 		ScriptPubKey: []byte{0x76, 0xa9, 0x14}, // Dummy P2PKH script
 	}
 
@@ -127,12 +127,12 @@ func demonstrateTypes() {
 	fmt.Println("🧱 Creating sample block...")
 
 	header := bitcoin.NewBlockHeader(
-		1,                    // Version
-		bitcoin.ZeroHash,     // Previous block hash (genesis)
-		bitcoin.ZeroHash,     // Merkle root (placeholder)
-		1640995200,          // Timestamp (Jan 1, 2022)
-		0x1d00ffff,          // Bits (difficulty)
-		12345,               // Nonce
+		1,                // Version
+		bitcoin.ZeroHash, // Previous block hash (genesis)
+		bitcoin.ZeroHash, // Merkle root (placeholder)
+		1640995200,       // Timestamp (Jan 1, 2022)
+		0x1d00ffff,       // Bits (difficulty)
+		12345,            // Nonce
 	)
 
 	block := bitcoin.NewBlock(header, []bitcoin.Transaction{*tx})

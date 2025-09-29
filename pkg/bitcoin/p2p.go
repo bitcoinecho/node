@@ -11,8 +11,8 @@ import (
 
 // Bitcoin P2P constants
 const (
-	MagicMainnet = 0xd9b4bef9 // Bitcoin mainnet magic bytes
-	HeaderSize   = 24         // P2P message header size
+	MagicMainnet = 0xd9b4bef9       // Bitcoin mainnet magic bytes
+	HeaderSize   = 24               // P2P message header size
 	MaxPayload   = 32 * 1024 * 1024 // 32MB max payload
 )
 

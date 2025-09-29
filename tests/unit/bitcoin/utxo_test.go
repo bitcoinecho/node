@@ -1,19 +1,19 @@
 package bitcoin_test
 
 import (
-	"testing"
 	"bitcoinecho.org/node/pkg/bitcoin"
+	"testing"
 )
 
 // TestUTXO_Creation tests UTXO creation and basic operations (TDD RED phase)
 func TestUTXO_Creation(t *testing.T) {
 	tests := []struct {
-		name        string
-		txHash      string
-		outputIndex uint32
-		amount      uint64
+		name         string
+		txHash       string
+		outputIndex  uint32
+		amount       uint64
 		scriptPubKey []byte
-		description string
+		description  string
 	}{
 		{
 			name:        "Create standard P2PKH UTXO",
@@ -97,9 +97,9 @@ func TestUTXOSet_AddRemove(t *testing.T) {
 			description: "Adding single UTXO should increase set size",
 		},
 		{
-			name:        "Add multiple UTXOs",
-			operations:  []string{"add", "add", "add"},
-			txHashes:    []string{
+			name:       "Add multiple UTXOs",
+			operations: []string{"add", "add", "add"},
+			txHashes: []string{
 				"abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab",
 				"1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
 				"567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234",
@@ -109,9 +109,9 @@ func TestUTXOSet_AddRemove(t *testing.T) {
 			description: "Adding multiple UTXOs should track all correctly",
 		},
 		{
-			name:        "Add and remove UTXO",
-			operations:  []string{"add", "remove"},
-			txHashes:    []string{
+			name:       "Add and remove UTXO",
+			operations: []string{"add", "remove"},
+			txHashes: []string{
 				"abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab",
 				"abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab",
 			},
@@ -163,40 +163,40 @@ func TestUTXOSet_AddRemove(t *testing.T) {
 // TestUTXOSet_Find tests UTXO lookup operations (TDD RED phase)
 func TestUTXOSet_Find(t *testing.T) {
 	tests := []struct {
-		name          string
-		setupUTXOs    int
-		searchTxHash  string
-		searchIndex   uint32
-		shouldFind    bool
+		name           string
+		setupUTXOs     int
+		searchTxHash   string
+		searchIndex    uint32
+		shouldFind     bool
 		expectedAmount uint64
-		description   string
+		description    string
 	}{
 		{
-			name:          "Find existing UTXO",
-			setupUTXOs:    3,
-			searchTxHash:  "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-			searchIndex:   1,
-			shouldFind:    true,
+			name:           "Find existing UTXO",
+			setupUTXOs:     3,
+			searchTxHash:   "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+			searchIndex:    1,
+			shouldFind:     true,
 			expectedAmount: 2500000000,
-			description:   "Should find existing UTXO in set",
+			description:    "Should find existing UTXO in set",
 		},
 		{
-			name:          "UTXO not found - wrong hash",
-			setupUTXOs:    3,
-			searchTxHash:  "9999999999999999999999999999999999999999999999999999999999999999",
-			searchIndex:   0,
-			shouldFind:    false,
+			name:           "UTXO not found - wrong hash",
+			setupUTXOs:     3,
+			searchTxHash:   "9999999999999999999999999999999999999999999999999999999999999999",
+			searchIndex:    0,
+			shouldFind:     false,
 			expectedAmount: 0,
-			description:   "Should not find non-existent UTXO",
+			description:    "Should not find non-existent UTXO",
 		},
 		{
-			name:          "UTXO not found - wrong index",
-			setupUTXOs:    3,
-			searchTxHash:  "abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab",
-			searchIndex:   99,
-			shouldFind:    false,
+			name:           "UTXO not found - wrong index",
+			setupUTXOs:     3,
+			searchTxHash:   "abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab",
+			searchIndex:    99,
+			shouldFind:     false,
 			expectedAmount: 0,
-			description:   "Should not find UTXO with wrong output index",
+			description:    "Should not find UTXO with wrong output index",
 		},
 	}
 
@@ -315,34 +315,34 @@ func TestUTXOSet_Validation(t *testing.T) {
 // TestUTXOSet_TotalValue tests UTXO set value calculations (TDD RED phase)
 func TestUTXOSet_TotalValue(t *testing.T) {
 	tests := []struct {
-		name         string
-		utxoAmounts  []uint64
+		name          string
+		utxoAmounts   []uint64
 		expectedTotal uint64
-		description  string
+		description   string
 	}{
 		{
-			name:         "Empty UTXO set",
-			utxoAmounts:  []uint64{},
+			name:          "Empty UTXO set",
+			utxoAmounts:   []uint64{},
 			expectedTotal: 0,
-			description:  "Empty set should have zero total value",
+			description:   "Empty set should have zero total value",
 		},
 		{
-			name:         "Single UTXO",
-			utxoAmounts:  []uint64{5000000000},
+			name:          "Single UTXO",
+			utxoAmounts:   []uint64{5000000000},
 			expectedTotal: 5000000000,
-			description:  "Single UTXO set total should equal the UTXO amount",
+			description:   "Single UTXO set total should equal the UTXO amount",
 		},
 		{
-			name:         "Multiple UTXOs",
-			utxoAmounts:  []uint64{5000000000, 2500000000, 1000000000, 500000000},
+			name:          "Multiple UTXOs",
+			utxoAmounts:   []uint64{5000000000, 2500000000, 1000000000, 500000000},
 			expectedTotal: 9000000000,
-			description:  "Multiple UTXO set should sum all amounts correctly",
+			description:   "Multiple UTXO set should sum all amounts correctly",
 		},
 		{
-			name:         "Genesis block coinbase",
-			utxoAmounts:  []uint64{5000000000}, // 50 BTC original coinbase
+			name:          "Genesis block coinbase",
+			utxoAmounts:   []uint64{5000000000}, // 50 BTC original coinbase
 			expectedTotal: 5000000000,
-			description:  "Genesis coinbase should calculate correctly",
+			description:   "Genesis coinbase should calculate correctly",
 		},
 	}
 
@@ -356,7 +356,7 @@ func TestUTXOSet_TotalValue(t *testing.T) {
 			// Add UTXOs with specified amounts
 			for i, amount := range tt.utxoAmounts {
 				txHashStr := "abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890" +
-					string(rune('a' + i%10)) + string(rune('b' + i%10))
+					string(rune('a'+i%10)) + string(rune('b'+i%10))
 				txHash, _ := bitcoin.NewHash256FromString(txHashStr)
 				utxo := bitcoin.NewUTXO(txHash, uint32(i), amount, []byte{0x76, 0xa9})
 				utxoSet.Add(utxo)

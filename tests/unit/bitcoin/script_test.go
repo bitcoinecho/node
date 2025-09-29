@@ -1,9 +1,9 @@
 package bitcoin_test
 
 import (
+	"bitcoinecho.org/node/pkg/bitcoin"
 	"encoding/hex"
 	"testing"
-	"bitcoinecho.org/node/pkg/bitcoin"
 )
 
 // TestScript_AnalyzeScript tests script type detection with real Bitcoin scripts
@@ -246,8 +246,8 @@ func TestScript_IsStandard(t *testing.T) {
 			expected: false,
 		},
 		{
-			name:     "Very large multisig is not standard (>3 pubkeys)",
-			script:   "54" + // OP_4 (4-of-N)
+			name: "Very large multisig is not standard (>3 pubkeys)",
+			script: "54" + // OP_4 (4-of-N)
 				"21034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa52" +
 				"21037e6d1d1a05f7c4e2b0f9c7b2e2c4b7a6d0a4a2c3e7b8d7a0d1f2c9b4e6a8d0a6" +
 				"21034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa52" +

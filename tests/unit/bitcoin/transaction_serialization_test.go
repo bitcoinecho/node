@@ -1,10 +1,10 @@
 package bitcoin_test
 
 import (
+	"bitcoinecho.org/node/pkg/bitcoin"
 	"bytes"
 	"encoding/hex"
 	"testing"
-	"bitcoinecho.org/node/pkg/bitcoin"
 )
 
 // TestTransaction_Serialize tests Bitcoin transaction serialization to wire format
@@ -24,7 +24,7 @@ func TestTransaction_Serialize(t *testing.T) {
 					{
 						PreviousOutput: bitcoin.OutPoint{
 							Hash:  bitcoin.Hash256{}, // Zero hash
-							Index: 0xFFFFFFFF, // Coinbase marker
+							Index: 0xFFFFFFFF,        // Coinbase marker
 						},
 						ScriptSig: mustDecodeHex("04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73"),
 						Sequence:  0xFFFFFFFF,
@@ -58,11 +58,11 @@ func TestTransaction_Serialize(t *testing.T) {
 				},
 				Outputs: []bitcoin.TxOutput{
 					{
-						Value:    5000000000, // 50 BTC
+						Value:        5000000000,                                                          // 50 BTC
 						ScriptPubKey: mustDecodeHex("76a914389ffce9cd9ae88dcc0631e88a821ffdbe9bfe2688ac"), // P2PKH
 					},
 					{
-						Value:    4900000000, // 49 BTC (change)
+						Value:        4900000000,                                                          // 49 BTC (change)
 						ScriptPubKey: mustDecodeHex("76a914389ffce9cd9ae88dcc0631e88a821ffdbe9bfe2688ac"), // P2PKH
 					},
 				},
@@ -92,7 +92,7 @@ func TestTransaction_Serialize(t *testing.T) {
 				},
 				Outputs: []bitcoin.TxOutput{
 					{
-						Value:    199996600, // ~2 BTC
+						Value:        199996600,                                                     // ~2 BTC
 						ScriptPubKey: mustDecodeHex("00140279be667ef9dcbbac55a06295ce870b07029bf0"), // P2WPKH
 					},
 				},
@@ -131,11 +131,11 @@ func TestTransaction_Serialize(t *testing.T) {
 // TestTransaction_Deserialize tests Bitcoin transaction deserialization from wire format
 func TestTransaction_Deserialize(t *testing.T) {
 	tests := []struct {
-		name         string
-		inputHex     string
-		expectedTx   *bitcoin.Transaction
-		isWitness    bool
-		description  string
+		name        string
+		inputHex    string
+		expectedTx  *bitcoin.Transaction
+		isWitness   bool
+		description string
 	}{
 		{
 			name:     "Genesis block coinbase transaction",
@@ -154,7 +154,7 @@ func TestTransaction_Deserialize(t *testing.T) {
 				},
 				Outputs: []bitcoin.TxOutput{
 					{
-						Value:    5000000000,
+						Value:        5000000000,
 						ScriptPubKey: mustDecodeHex("4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac"),
 					},
 				},
@@ -180,11 +180,11 @@ func TestTransaction_Deserialize(t *testing.T) {
 				},
 				Outputs: []bitcoin.TxOutput{
 					{
-						Value:    1000000000,
+						Value:        1000000000,
 						ScriptPubKey: mustDecodeHex("4104ae1a62fe09c5f51b13905f07f06b99a2f7159b2225f374cd378d71302fa28414e7aab37397f554a7df5f142c21c1b7303b8a0626f1baded5c72a704f7e6cd84cac"),
 					},
 					{
-						Value:    4000000000,
+						Value:        4000000000,
 						ScriptPubKey: mustDecodeHex("410411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3ac"),
 					},
 				},

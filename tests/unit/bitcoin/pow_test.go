@@ -1,8 +1,8 @@
 package bitcoin_test
 
 import (
-	"testing"
 	"bitcoinecho.org/node/pkg/bitcoin"
+	"testing"
 )
 
 // TestProofOfWork_TargetValidation tests PoW target validation (TDD RED phase)
@@ -17,28 +17,28 @@ func TestProofOfWork_TargetValidation(t *testing.T) {
 		{
 			name:          "Genesis block valid PoW",
 			blockHash:     "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f", // Genesis block hash
-			targetBits:    0x1d00ffff,                                                           // Genesis target
+			targetBits:    0x1d00ffff,                                                         // Genesis target
 			expectedValid: true,
 			description:   "Genesis block should pass PoW validation",
 		},
 		{
 			name:          "Hash above target (invalid)",
 			blockHash:     "100000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f", // Higher hash
-			targetBits:    0x1d00ffff,                                                           // Same target
+			targetBits:    0x1d00ffff,                                                         // Same target
 			expectedValid: false,
 			description:   "Hash above target should fail validation",
 		},
 		{
 			name:          "Maximum difficulty target",
 			blockHash:     "0000000000000000000000000000000000000000000000000000000000000001", // Very low hash
-			targetBits:    0x207fffff,                                                           // Maximum difficulty
+			targetBits:    0x207fffff,                                                         // Maximum difficulty
 			expectedValid: true,
 			description:   "Hash below maximum difficulty should pass",
 		},
 		{
 			name:          "Minimum difficulty target",
 			blockHash:     "00000000ffff0000000000000000000000000000000000000000000000000000", // Medium hash
-			targetBits:    0x1d00ffff,                                                           // Minimum difficulty (genesis)
+			targetBits:    0x1d00ffff,                                                         // Minimum difficulty (genesis)
 			expectedValid: true,
 			description:   "Hash below minimum difficulty should pass",
 		},
@@ -76,28 +76,28 @@ func TestProofOfWork_TargetValidation(t *testing.T) {
 // TestProofOfWork_CompactTargetConversion tests compact target conversion (TDD RED phase)
 func TestProofOfWork_CompactTargetConversion(t *testing.T) {
 	tests := []struct {
-		name         string
-		compactBits  uint32
+		name           string
+		compactBits    uint32
 		expectedTarget string // Expected full target as hex
-		description  string
+		description    string
 	}{
 		{
-			name:         "Genesis block target",
-			compactBits:  0x1d00ffff,
+			name:           "Genesis block target",
+			compactBits:    0x1d00ffff,
 			expectedTarget: "00000000ffff0000000000000000000000000000000000000000000000000000", // Genesis target
-			description:  "Genesis block compact target conversion",
+			description:    "Genesis block compact target conversion",
 		},
 		{
-			name:         "Maximum difficulty",
-			compactBits:  0x207fffff,
+			name:           "Maximum difficulty",
+			compactBits:    0x207fffff,
 			expectedTarget: "7fffff0000000000000000000000000000000000000000000000000000000000", // Max difficulty (correct format)
-			description:  "Maximum difficulty target conversion",
+			description:    "Maximum difficulty target conversion",
 		},
 		{
-			name:         "Early Bitcoin target",
-			compactBits:  0x1d00ffff,
+			name:           "Early Bitcoin target",
+			compactBits:    0x1d00ffff,
 			expectedTarget: "00000000ffff0000000000000000000000000000000000000000000000000000",
-			description:  "Early Bitcoin difficulty target",
+			description:    "Early Bitcoin difficulty target",
 		},
 	}
 
@@ -144,14 +144,14 @@ func TestProofOfWork_DifficultyAdjustment(t *testing.T) {
 		{
 			name:           "Increase difficulty (blocks too fast)",
 			currentTarget:  0x1d00ffff,
-			actualTime:     604800, // 1 week (half time)
+			actualTime:     604800,     // 1 week (half time)
 			expectedTarget: 0x1c7fff80, // Should increase difficulty (calculated value)
 			description:    "Fast blocks should increase difficulty",
 		},
 		{
 			name:           "Decrease difficulty (blocks too slow)",
 			currentTarget:  0x1d00ffff,
-			actualTime:     2419200, // 4 weeks (double time)
+			actualTime:     2419200,    // 4 weeks (double time)
 			expectedTarget: 0x1d01fffe, // Should decrease difficulty (calculated value)
 			description:    "Slow blocks should decrease difficulty",
 		},
@@ -212,7 +212,7 @@ func TestProofOfWork_EdgeCases(t *testing.T) {
 			name:        "Invalid target bits (overflow)",
 			blockHash:   "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
 			targetBits:  0xff000000, // Invalid exponent
-			shouldPanic: false,       // Should handle gracefully
+			shouldPanic: false,      // Should handle gracefully
 			description: "Invalid target bits should be handled gracefully",
 		},
 		{

@@ -1,8 +1,8 @@
 package bitcoin_test
 
 import (
-	"testing"
 	"bitcoinecho.org/node/pkg/bitcoin"
+	"testing"
 )
 
 // TestHash256_NewHash256FromBytes tests creating Hash256 from byte slices

@@ -14,92 +14,92 @@ type ScriptOpcode byte
 // Script operation codes
 const (
 	// Constants
-	OP_0                   ScriptOpcode = 0x00
-	OP_FALSE               ScriptOpcode = OP_0
-	OP_PUSHDATA1           ScriptOpcode = 0x4c
-	OP_PUSHDATA2           ScriptOpcode = 0x4d
-	OP_PUSHDATA4           ScriptOpcode = 0x4e
-	OP_1NEGATE             ScriptOpcode = 0x4f
-	OP_RESERVED            ScriptOpcode = 0x50
-	OP_1                   ScriptOpcode = 0x51
-	OP_TRUE                ScriptOpcode = OP_1
-	OP_2                   ScriptOpcode = 0x52
-	OP_3                   ScriptOpcode = 0x53
-	OP_4                   ScriptOpcode = 0x54
-	OP_5                   ScriptOpcode = 0x55
-	OP_6                   ScriptOpcode = 0x56
-	OP_7                   ScriptOpcode = 0x57
-	OP_8                   ScriptOpcode = 0x58
-	OP_9                   ScriptOpcode = 0x59
-	OP_10                  ScriptOpcode = 0x5a
-	OP_11                  ScriptOpcode = 0x5b
-	OP_12                  ScriptOpcode = 0x5c
-	OP_13                  ScriptOpcode = 0x5d
-	OP_14                  ScriptOpcode = 0x5e
-	OP_15                  ScriptOpcode = 0x5f
-	OP_16                  ScriptOpcode = 0x60
+	OP_0         ScriptOpcode = 0x00
+	OP_FALSE     ScriptOpcode = OP_0
+	OP_PUSHDATA1 ScriptOpcode = 0x4c
+	OP_PUSHDATA2 ScriptOpcode = 0x4d
+	OP_PUSHDATA4 ScriptOpcode = 0x4e
+	OP_1NEGATE   ScriptOpcode = 0x4f
+	OP_RESERVED  ScriptOpcode = 0x50
+	OP_1         ScriptOpcode = 0x51
+	OP_TRUE      ScriptOpcode = OP_1
+	OP_2         ScriptOpcode = 0x52
+	OP_3         ScriptOpcode = 0x53
+	OP_4         ScriptOpcode = 0x54
+	OP_5         ScriptOpcode = 0x55
+	OP_6         ScriptOpcode = 0x56
+	OP_7         ScriptOpcode = 0x57
+	OP_8         ScriptOpcode = 0x58
+	OP_9         ScriptOpcode = 0x59
+	OP_10        ScriptOpcode = 0x5a
+	OP_11        ScriptOpcode = 0x5b
+	OP_12        ScriptOpcode = 0x5c
+	OP_13        ScriptOpcode = 0x5d
+	OP_14        ScriptOpcode = 0x5e
+	OP_15        ScriptOpcode = 0x5f
+	OP_16        ScriptOpcode = 0x60
 
 	// Flow control
-	OP_NOP                 ScriptOpcode = 0x61
-	OP_VER                 ScriptOpcode = 0x62
-	OP_IF                  ScriptOpcode = 0x63
-	OP_NOTIF               ScriptOpcode = 0x64
-	OP_VERIF               ScriptOpcode = 0x65
-	OP_VERNOTIF            ScriptOpcode = 0x66
-	OP_ELSE                ScriptOpcode = 0x67
-	OP_ENDIF               ScriptOpcode = 0x68
-	OP_VERIFY              ScriptOpcode = 0x69
-	OP_RETURN              ScriptOpcode = 0x6a
+	OP_NOP      ScriptOpcode = 0x61
+	OP_VER      ScriptOpcode = 0x62
+	OP_IF       ScriptOpcode = 0x63
+	OP_NOTIF    ScriptOpcode = 0x64
+	OP_VERIF    ScriptOpcode = 0x65
+	OP_VERNOTIF ScriptOpcode = 0x66
+	OP_ELSE     ScriptOpcode = 0x67
+	OP_ENDIF    ScriptOpcode = 0x68
+	OP_VERIFY   ScriptOpcode = 0x69
+	OP_RETURN   ScriptOpcode = 0x6a
 
 	// Stack ops
-	OP_TOALTSTACK          ScriptOpcode = 0x6b
-	OP_FROMALTSTACK        ScriptOpcode = 0x6c
-	OP_2DROP               ScriptOpcode = 0x6d
-	OP_2DUP                ScriptOpcode = 0x6e
-	OP_3DUP                ScriptOpcode = 0x6f
-	OP_2OVER               ScriptOpcode = 0x70
-	OP_2ROT                ScriptOpcode = 0x71
-	OP_2SWAP               ScriptOpcode = 0x72
-	OP_IFDUP               ScriptOpcode = 0x73
-	OP_DEPTH               ScriptOpcode = 0x74
-	OP_DROP                ScriptOpcode = 0x75
-	OP_DUP                 ScriptOpcode = 0x76
-	OP_NIP                 ScriptOpcode = 0x77
-	OP_OVER                ScriptOpcode = 0x78
-	OP_PICK                ScriptOpcode = 0x79
-	OP_ROLL                ScriptOpcode = 0x7a
-	OP_ROT                 ScriptOpcode = 0x7b
-	OP_SWAP                ScriptOpcode = 0x7c
-	OP_TUCK                ScriptOpcode = 0x7d
+	OP_TOALTSTACK   ScriptOpcode = 0x6b
+	OP_FROMALTSTACK ScriptOpcode = 0x6c
+	OP_2DROP        ScriptOpcode = 0x6d
+	OP_2DUP         ScriptOpcode = 0x6e
+	OP_3DUP         ScriptOpcode = 0x6f
+	OP_2OVER        ScriptOpcode = 0x70
+	OP_2ROT         ScriptOpcode = 0x71
+	OP_2SWAP        ScriptOpcode = 0x72
+	OP_IFDUP        ScriptOpcode = 0x73
+	OP_DEPTH        ScriptOpcode = 0x74
+	OP_DROP         ScriptOpcode = 0x75
+	OP_DUP          ScriptOpcode = 0x76
+	OP_NIP          ScriptOpcode = 0x77
+	OP_OVER         ScriptOpcode = 0x78
+	OP_PICK         ScriptOpcode = 0x79
+	OP_ROLL         ScriptOpcode = 0x7a
+	OP_ROT          ScriptOpcode = 0x7b
+	OP_SWAP         ScriptOpcode = 0x7c
+	OP_TUCK         ScriptOpcode = 0x7d
 
 	// String ops
-	OP_SIZE                ScriptOpcode = 0x82
+	OP_SIZE ScriptOpcode = 0x82
 
 	// Bitwise logic
-	OP_EQUAL               ScriptOpcode = 0x87
-	OP_EQUALVERIFY         ScriptOpcode = 0x88
+	OP_EQUAL       ScriptOpcode = 0x87
+	OP_EQUALVERIFY ScriptOpcode = 0x88
 
 	// Arithmetic
-	OP_1ADD                ScriptOpcode = 0x8b
-	OP_1SUB                ScriptOpcode = 0x8c
-	OP_NEGATE              ScriptOpcode = 0x8f
-	OP_ABS                 ScriptOpcode = 0x90
-	OP_NOT                 ScriptOpcode = 0x91
-	OP_0NOTEQUAL           ScriptOpcode = 0x92
-	OP_ADD                 ScriptOpcode = 0x93
-	OP_SUB                 ScriptOpcode = 0x94
-	OP_BOOLAND             ScriptOpcode = 0x9a
-	OP_BOOLOR              ScriptOpcode = 0x9b
-	OP_NUMEQUAL            ScriptOpcode = 0x9c
-	OP_NUMEQUALVERIFY      ScriptOpcode = 0x9d
-	OP_NUMNOTEQUAL         ScriptOpcode = 0x9e
-	OP_LESSTHAN            ScriptOpcode = 0x9f
-	OP_GREATERTHAN         ScriptOpcode = 0xa0
-	OP_LESSTHANOREQUAL     ScriptOpcode = 0xa1
-	OP_GREATERTHANOREQUAL  ScriptOpcode = 0xa2
-	OP_MIN                 ScriptOpcode = 0xa3
-	OP_MAX                 ScriptOpcode = 0xa4
-	OP_WITHIN              ScriptOpcode = 0xa5
+	OP_1ADD               ScriptOpcode = 0x8b
+	OP_1SUB               ScriptOpcode = 0x8c
+	OP_NEGATE             ScriptOpcode = 0x8f
+	OP_ABS                ScriptOpcode = 0x90
+	OP_NOT                ScriptOpcode = 0x91
+	OP_0NOTEQUAL          ScriptOpcode = 0x92
+	OP_ADD                ScriptOpcode = 0x93
+	OP_SUB                ScriptOpcode = 0x94
+	OP_BOOLAND            ScriptOpcode = 0x9a
+	OP_BOOLOR             ScriptOpcode = 0x9b
+	OP_NUMEQUAL           ScriptOpcode = 0x9c
+	OP_NUMEQUALVERIFY     ScriptOpcode = 0x9d
+	OP_NUMNOTEQUAL        ScriptOpcode = 0x9e
+	OP_LESSTHAN           ScriptOpcode = 0x9f
+	OP_GREATERTHAN        ScriptOpcode = 0xa0
+	OP_LESSTHANOREQUAL    ScriptOpcode = 0xa1
+	OP_GREATERTHANOREQUAL ScriptOpcode = 0xa2
+	OP_MIN                ScriptOpcode = 0xa3
+	OP_MAX                ScriptOpcode = 0xa4
+	OP_WITHIN             ScriptOpcode = 0xa5
 
 	// Crypto
 	OP_RIPEMD160           ScriptOpcode = 0xa6
@@ -126,7 +126,7 @@ const (
 	OP_NOP10               ScriptOpcode = 0xb9
 
 	// Invalid opcodes
-	OP_INVALIDOPCODE       ScriptOpcode = 0xff
+	OP_INVALIDOPCODE ScriptOpcode = 0xff
 )
 
 // ScriptType represents the type of a script
@@ -134,12 +134,12 @@ type ScriptType int
 
 const (
 	ScriptTypeUnknown ScriptType = iota
-	ScriptTypeP2PK    // Pay-to-Public-Key
-	ScriptTypeP2PKH   // Pay-to-Public-Key-Hash
-	ScriptTypeP2SH    // Pay-to-Script-Hash
-	ScriptTypeP2WPKH  // Pay-to-Witness-Public-Key-Hash
-	ScriptTypeP2WSH   // Pay-to-Witness-Script-Hash
-	ScriptTypeP2TR    // Pay-to-Taproot
+	ScriptTypeP2PK               // Pay-to-Public-Key
+	ScriptTypeP2PKH              // Pay-to-Public-Key-Hash
+	ScriptTypeP2SH               // Pay-to-Script-Hash
+	ScriptTypeP2WPKH             // Pay-to-Witness-Public-Key-Hash
+	ScriptTypeP2WSH              // Pay-to-Witness-Script-Hash
+	ScriptTypeP2TR               // Pay-to-Taproot
 	ScriptTypeMultisig
 	ScriptTypeNullData // OP_RETURN
 )
@@ -164,25 +164,25 @@ type ScriptEngine struct {
 type ScriptFlags uint32
 
 const (
-	ScriptFlagsNone                    ScriptFlags = 0
-	ScriptVerifyP2SH                  ScriptFlags = 1 << 0  // BIP16
-	ScriptVerifyStrictEnc             ScriptFlags = 1 << 1  // Strict DER encoding
-	ScriptVerifyDERSig                ScriptFlags = 1 << 2  // Strict DER signatures
-	ScriptVerifyLowS                  ScriptFlags = 1 << 3  // Low S values
-	ScriptVerifyNullDummy             ScriptFlags = 1 << 4  // Null dummy for multisig
-	ScriptVerifySigPushOnly           ScriptFlags = 1 << 5  // Only push operations in scriptSig
-	ScriptVerifyMinimalData           ScriptFlags = 1 << 6  // Minimal pushdata operations
-	ScriptVerifyDiscourageUpgradableNops ScriptFlags = 1 << 7
-	ScriptVerifyCleanStack            ScriptFlags = 1 << 8  // Clean stack after execution
-	ScriptVerifyCheckLockTimeVerify   ScriptFlags = 1 << 9  // BIP65
-	ScriptVerifyCheckSequenceVerify   ScriptFlags = 1 << 10 // BIP112
-	ScriptVerifyWitness              ScriptFlags = 1 << 11 // BIP141
+	ScriptFlagsNone                                ScriptFlags = 0
+	ScriptVerifyP2SH                               ScriptFlags = 1 << 0 // BIP16
+	ScriptVerifyStrictEnc                          ScriptFlags = 1 << 1 // Strict DER encoding
+	ScriptVerifyDERSig                             ScriptFlags = 1 << 2 // Strict DER signatures
+	ScriptVerifyLowS                               ScriptFlags = 1 << 3 // Low S values
+	ScriptVerifyNullDummy                          ScriptFlags = 1 << 4 // Null dummy for multisig
+	ScriptVerifySigPushOnly                        ScriptFlags = 1 << 5 // Only push operations in scriptSig
+	ScriptVerifyMinimalData                        ScriptFlags = 1 << 6 // Minimal pushdata operations
+	ScriptVerifyDiscourageUpgradableNops           ScriptFlags = 1 << 7
+	ScriptVerifyCleanStack                         ScriptFlags = 1 << 8  // Clean stack after execution
+	ScriptVerifyCheckLockTimeVerify                ScriptFlags = 1 << 9  // BIP65
+	ScriptVerifyCheckSequenceVerify                ScriptFlags = 1 << 10 // BIP112
+	ScriptVerifyWitness                            ScriptFlags = 1 << 11 // BIP141
 	ScriptVerifyDiscourageUpgradableWitnessProgram ScriptFlags = 1 << 12
-	ScriptVerifyMinimalIf            ScriptFlags = 1 << 13
-	ScriptVerifyNullFail             ScriptFlags = 1 << 14
-	ScriptVerifyWitnessPubkeyType    ScriptFlags = 1 << 15
-	ScriptVerifyConstScriptCode      ScriptFlags = 1 << 16 // BIP342
-	ScriptVerifyTaproot              ScriptFlags = 1 << 17 // BIP340/341/342
+	ScriptVerifyMinimalIf                          ScriptFlags = 1 << 13
+	ScriptVerifyNullFail                           ScriptFlags = 1 << 14
+	ScriptVerifyWitnessPubkeyType                  ScriptFlags = 1 << 15
+	ScriptVerifyConstScriptCode                    ScriptFlags = 1 << 16 // BIP342
+	ScriptVerifyTaproot                            ScriptFlags = 1 << 17 // BIP340/341/342
 )
 
 // NewScriptEngine creates a new script execution engine
@@ -416,15 +416,15 @@ func (se *ScriptEngine) isTrue(data []byte) bool {
 
 // Script size constants
 const (
-	P2PKHScriptSize         = 25 // OP_DUP OP_HASH160 <20-byte hash> OP_EQUALVERIFY OP_CHECKSIG
-	P2SHScriptSize          = 23 // OP_HASH160 <20-byte hash> OP_EQUAL
-	P2WPKHScriptSize        = 22 // OP_0 <20-byte hash>
-	P2WSHScriptSize         = 34 // OP_0 <32-byte hash>
-	P2TRScriptSize          = 34 // OP_1 <32-byte key>
-	CompressedPubKeySize    = 33 // 0x02/0x03 + 32 bytes
-	UncompressedPubKeySize  = 65 // 0x04 + 64 bytes
-	Hash160Size             = 20 // RIPEMD160 output
-	Hash256Size             = 32 // SHA256 output
+	P2PKHScriptSize        = 25 // OP_DUP OP_HASH160 <20-byte hash> OP_EQUALVERIFY OP_CHECKSIG
+	P2SHScriptSize         = 23 // OP_HASH160 <20-byte hash> OP_EQUAL
+	P2WPKHScriptSize       = 22 // OP_0 <20-byte hash>
+	P2WSHScriptSize        = 34 // OP_0 <32-byte hash>
+	P2TRScriptSize         = 34 // OP_1 <32-byte key>
+	CompressedPubKeySize   = 33 // 0x02/0x03 + 32 bytes
+	UncompressedPubKeySize = 65 // 0x04 + 64 bytes
+	Hash160Size            = 20 // RIPEMD160 output
+	Hash256Size            = 32 // SHA256 output
 )
 
 // AnalyzeScript determines the type of a script

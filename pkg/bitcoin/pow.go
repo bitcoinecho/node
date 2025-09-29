@@ -74,7 +74,7 @@ func BigTargetToHash256(target *big.Int) Hash256 {
 func AdjustDifficulty(currentTargetBits, actualTimeSeconds uint32) uint32 {
 	// Bitcoin difficulty adjustment constants
 	const targetTimespan = 14 * 24 * 60 * 60 // 2 weeks in seconds
-	const maxAdjustment = 4                   // Max 4x adjustment up or down
+	const maxAdjustment = 4                  // Max 4x adjustment up or down
 
 	// Handle edge case
 	if actualTimeSeconds == 0 {

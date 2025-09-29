@@ -1,21 +1,21 @@
 package bitcoin_test
 
 import (
+	"bitcoinecho.org/node/pkg/bitcoin"
 	"testing"
 	"time"
-	"bitcoinecho.org/node/pkg/bitcoin"
 )
 
 // TestNewBlock tests block creation
 func TestNewBlock(t *testing.T) {
 	// Create a sample block header
 	header := bitcoin.NewBlockHeader(
-		1,                    // version
-		bitcoin.ZeroHash,             // previous block hash (genesis)
-		bitcoin.ZeroHash,             // merkle root (placeholder)
-		1640995200,           // timestamp (Jan 1, 2022)
-		0x1d00ffff,           // difficulty bits
-		12345,                // nonce
+		1,                // version
+		bitcoin.ZeroHash, // previous block hash (genesis)
+		bitcoin.ZeroHash, // merkle root (placeholder)
+		1640995200,       // timestamp (Jan 1, 2022)
+		0x1d00ffff,       // difficulty bits
+		12345,            // nonce
 	)
 
 	// Create a sample coinbase transaction
@@ -27,7 +27,7 @@ func TestNewBlock(t *testing.T) {
 			Sequence:       0xffffffff,
 		}},
 		Outputs: []bitcoin.TxOutput{{
-			Value:        5000000000, // 50 BTC
+			Value:        5000000000,               // 50 BTC
 			ScriptPubKey: []byte{0x76, 0xa9, 0x14}, // P2PKH placeholder
 		}},
 		LockTime: 0,
@@ -364,12 +364,12 @@ func TestBlockHeader_Hash_GenesisBlock(t *testing.T) {
 
 	// Genesis block header
 	genesisHeader := bitcoin.NewBlockHeader(
-		1,              // version
-		bitcoin.ZeroHash,       // previous block hash (genesis has no previous)
-		merkleRoot,     // merkle root
-		1231006505,     // timestamp (Jan 3, 2009 18:15:05 UTC)
-		0x1d00ffff,     // bits (difficulty)
-		2083236893,     // nonce
+		1,                // version
+		bitcoin.ZeroHash, // previous block hash (genesis has no previous)
+		merkleRoot,       // merkle root
+		1231006505,       // timestamp (Jan 3, 2009 18:15:05 UTC)
+		0x1d00ffff,       // bits (difficulty)
+		2083236893,       // nonce
 	)
 
 	// Expected genesis block hash

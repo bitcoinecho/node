@@ -1,8 +1,8 @@
 package bitcoin_test
 
 import (
-	"testing"
 	"bitcoinecho.org/node/pkg/bitcoin"
+	"testing"
 )
 
 // TestNewTransaction tests creating new transactions
@@ -18,7 +18,7 @@ func TestNewTransaction(t *testing.T) {
 	}
 
 	output := bitcoin.TxOutput{
-		Value:        5000000000, // 50 BTC
+		Value:        5000000000,               // 50 BTC
 		ScriptPubKey: []byte{0x76, 0xa9, 0x14}, // Sample P2PKH script
 	}
 
@@ -289,8 +289,8 @@ func TestTransaction_Validate(t *testing.T) {
 					Sequence:       0xffffffff,
 				}},
 				Outputs: []bitcoin.TxOutput{
-					{Value: bitcoin.MaxMoney / 2 + 1, ScriptPubKey: []byte{0x76}},
-					{Value: bitcoin.MaxMoney / 2 + 1, ScriptPubKey: []byte{0xa9}},
+					{Value: bitcoin.MaxMoney/2 + 1, ScriptPubKey: []byte{0x76}},
+					{Value: bitcoin.MaxMoney/2 + 1, ScriptPubKey: []byte{0xa9}},
 				},
 			},
 			expectError: true,
@@ -306,7 +306,7 @@ func TestTransaction_Validate(t *testing.T) {
 					Sequence:       0xffffffff,
 				}},
 				Outputs: []bitcoin.TxOutput{{
-					Value:        5000000000, // 50 BTC
+					Value:        5000000000,               // 50 BTC
 					ScriptPubKey: []byte{0x76, 0xa9, 0x14}, // P2PKH
 				}},
 			},

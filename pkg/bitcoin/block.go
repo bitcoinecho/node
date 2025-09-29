@@ -19,12 +19,12 @@ type Block struct {
 
 // BlockHeader represents a Bitcoin block header
 type BlockHeader struct {
-	Version       uint32    `json:"version"`
-	PrevBlockHash Hash256   `json:"prev_block_hash"`
-	MerkleRoot    Hash256   `json:"merkle_root"`
-	Timestamp     uint32    `json:"timestamp"`
-	Bits          uint32    `json:"bits"`          // Difficulty target
-	Nonce         uint32    `json:"nonce"`
+	Version       uint32  `json:"version"`
+	PrevBlockHash Hash256 `json:"prev_block_hash"`
+	MerkleRoot    Hash256 `json:"merkle_root"`
+	Timestamp     uint32  `json:"timestamp"`
+	Bits          uint32  `json:"bits"` // Difficulty target
+	Nonce         uint32  `json:"nonce"`
 
 	// Cached values
 	hash *Hash256 // Header hash
@@ -189,12 +189,12 @@ func (b *Block) Weight() int {
 // estimateTransactionSize estimates the serialized size of a transaction
 func (b *Block) estimateTransactionSize(tx *Transaction) int {
 	// Rough estimation - in practice this should serialize the transaction
-	size := 4  // Version
-	size += 1  // Input count varint (simplified)
-	size += len(tx.Inputs) * 36  // Each input: 32-byte hash + 4-byte index + script + sequence
-	size += 1  // Output count varint (simplified)
+	size := 4                   // Version
+	size += 1                   // Input count varint (simplified)
+	size += len(tx.Inputs) * 36 // Each input: 32-byte hash + 4-byte index + script + sequence
+	size += 1                   // Output count varint (simplified)
 	size += len(tx.Outputs) * 9 // Each output: 8-byte value + script (simplified)
-	size += 4  // Lock time
+	size += 4                   // Lock time
 
 	// Add script sizes
 	for _, input := range tx.Inputs {
@@ -269,6 +269,6 @@ func (bh *BlockHeader) Validate() error {
 
 // Constants
 const (
-	MaxBlockSize   = 1000000  // 1MB (legacy limit)
-	MaxBlockWeight = 4000000  // 4M weight units (BIP141)
+	MaxBlockSize   = 1000000 // 1MB (legacy limit)
+	MaxBlockWeight = 4000000 // 4M weight units (BIP141)
 )

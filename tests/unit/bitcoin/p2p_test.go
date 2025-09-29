@@ -1,8 +1,8 @@
 package bitcoin_test
 
 import (
-	"testing"
 	"bitcoinecho.org/node/pkg/bitcoin"
+	"testing"
 )
 
 // TestP2P_MessageSerialization tests Bitcoin P2P message serialization (TDD RED phase)
@@ -18,14 +18,14 @@ func TestP2P_MessageSerialization(t *testing.T) {
 			name:        "Version message",
 			command:     "version",
 			payload:     []byte{0x01, 0x02, 0x03, 0x04}, // Dummy payload
-			expectedLen: 24 + 4,                          // Header + payload
+			expectedLen: 24 + 4,                         // Header + payload
 			description: "Version message should serialize correctly",
 		},
 		{
 			name:        "Ping message",
 			command:     "ping",
 			payload:     []byte{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}, // 8-byte nonce
-			expectedLen: 24 + 8,                                                  // Header + nonce
+			expectedLen: 24 + 8,                                                 // Header + nonce
 			description: "Ping message should serialize with 8-byte nonce",
 		},
 		{
@@ -194,7 +194,7 @@ func TestP2P_PeerHandshake(t *testing.T) {
 		{
 			name:        "Successful handshake",
 			peerAddr:    "peer.example.com:8333", // Mock peer that will work
-			ourVersion:  70015, // Protocol version
+			ourVersion:  70015,                   // Protocol version
 			expected:    true,
 			description: "Valid peer should complete handshake",
 		},
@@ -227,22 +227,22 @@ func TestP2P_PeerHandshake(t *testing.T) {
 // TestP2P_PeerConnection tests peer connection management (TDD RED phase)
 func TestP2P_PeerConnection(t *testing.T) {
 	tests := []struct {
-		name        string
-		peerAddr    string
+		name          string
+		peerAddr      string
 		shouldConnect bool
-		description string
+		description   string
 	}{
 		{
-			name:        "Connect to localhost",
-			peerAddr:    "127.0.0.1:8333",
+			name:          "Connect to localhost",
+			peerAddr:      "127.0.0.1:8333",
 			shouldConnect: false, // Will fail since no actual node running
-			description: "Connection attempt should be handled gracefully",
+			description:   "Connection attempt should be handled gracefully",
 		},
 		{
-			name:        "Invalid address",
-			peerAddr:    "invalid:address",
+			name:          "Invalid address",
+			peerAddr:      "invalid:address",
 			shouldConnect: false,
-			description: "Invalid address should fail connection",
+			description:   "Invalid address should fail connection",
 		},
 	}
 
