@@ -213,11 +213,14 @@ func DeserializeTransaction(data []byte) (*Transaction, error) {
 	// Inputs
 	tx.Inputs = make([]TxInput, inputCount)
 	for i := uint64(0); i < inputCount; i++ {
-		// Previous output hash (32 bytes)
+		// Previous output hash (32 bytes, reversed from wire format)
 		if len(data[offset:]) < 32 {
 			return nil, fmt.Errorf("insufficient data for input %d hash", i)
 		}
-		copy(tx.Inputs[i].PreviousOutput.Hash[:], data[offset:offset+32])
+		// Reverse the hash bytes from wire format
+		for j := 0; j < 32; j++ {
+			tx.Inputs[i].PreviousOutput.Hash[j] = data[offset+31-j]
+		}
 		offset += 32
 
 		// Previous output index (4 bytes)
