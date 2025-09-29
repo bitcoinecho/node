@@ -34,6 +34,7 @@ Bitcoin Echo aims to provide:
 - **✅ ECDSA signature verification: 100% coverage (OP_CHECKSIG implementation)**
 - **✅ Merkle tree construction: 100% coverage (Bitcoin protocol-compliant)**
 - **✅ Proof-of-Work verification: 100% coverage (difficulty validation and adjustment)**
+- **✅ Basic P2P networking: 100% coverage (message protocol, peer connections)**
 - **✅ Overall project: 228/228 tests passing (100% success rate)**
 
 ✅ **Recently Completed:**
