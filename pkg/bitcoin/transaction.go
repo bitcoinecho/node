@@ -220,8 +220,13 @@ func DeserializeTransaction(data []byte) (*Transaction, error) {
 	}
 	offset += bytesRead
 
+	// Validate input count before conversion
+	if inputCount > 0x7fffffff { // Max int value
+		return nil, fmt.Errorf("input count too large: %d", inputCount)
+	}
+
 	// Inputs
-	tx.Inputs = make([]TxInput, inputCount)
+	tx.Inputs = make([]TxInput, int(inputCount))
 	for i := uint64(0); i < inputCount; i++ {
 		// Previous output hash (32 bytes, reversed from wire format)
 		if len(data[offset:]) < 32 {
@@ -248,12 +253,17 @@ func DeserializeTransaction(data []byte) (*Transaction, error) {
 		offset += bytesRead
 
 		// Script
-		if len(data[offset:]) < int(scriptLen) {
+		// Validate script length before conversion
+		if scriptLen > 0x7fffffff { // Max int value
+			return nil, fmt.Errorf("input %d script length too large: %d", i, scriptLen)
+		}
+		scriptLenInt := int(scriptLen)
+		if len(data[offset:]) < scriptLenInt {
 			return nil, fmt.Errorf("insufficient data for input %d script", i)
 		}
 		tx.Inputs[i].ScriptSig = make([]byte, scriptLen)
-		copy(tx.Inputs[i].ScriptSig, data[offset:offset+int(scriptLen)])
-		offset += int(scriptLen)
+		copy(tx.Inputs[i].ScriptSig, data[offset:offset+scriptLenInt])
+		offset += scriptLenInt
 
 		// Sequence (4 bytes)
 		if len(data[offset:]) < 4 {
@@ -270,8 +280,13 @@ func DeserializeTransaction(data []byte) (*Transaction, error) {
 	}
 	offset += bytesRead
 
+	// Validate output count before conversion
+	if outputCount > 0x7fffffff { // Max int value
+		return nil, fmt.Errorf("output count too large: %d", outputCount)
+	}
+
 	// Outputs
-	tx.Outputs = make([]TxOutput, outputCount)
+	tx.Outputs = make([]TxOutput, int(outputCount))
 	for i := uint64(0); i < outputCount; i++ {
 		// Value (8 bytes)
 		if len(data[offset:]) < 8 {
