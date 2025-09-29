@@ -47,6 +47,11 @@ func (m *P2PMessage) Serialize() []byte {
 	// Calculate payload length
 	payloadLen := len(m.payload)
 
+	// Validate payload length before conversion
+	if payloadLen < 0 || payloadLen > 0xffffffff {
+		return nil // Invalid payload length
+	}
+
 	// Create buffer for the complete message
 	msg := make([]byte, HeaderSize+payloadLen)
 

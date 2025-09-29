@@ -163,6 +163,10 @@ func (bc *BlockChain) processBlockTransactions(block *Block) {
 		// Process transaction outputs
 		txHash := tx.Hash()
 		for j, output := range tx.Outputs {
+			// Validate output index before conversion
+			if j < 0 || j > 0xffffffff {
+				continue // Skip invalid output index
+			}
 			// Create new UTXO
 			utxo := NewUTXO(txHash, uint32(j), output.Value, output.ScriptPubKey)
 			bc.utxoSet.Add(utxo)

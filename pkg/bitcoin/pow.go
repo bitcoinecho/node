@@ -147,6 +147,10 @@ func BigTargetToCompact(target *big.Int) uint32 {
 	}
 
 	// Combine exponent and mantissa
+	// Ensure exponent is within valid range before conversion
+	if exponent < 0 || exponent > 255 {
+		return 0
+	}
 	compact := uint32(exponent)<<24 | (mantissa & 0x00ffffff)
 
 	return compact

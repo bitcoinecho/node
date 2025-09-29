@@ -167,8 +167,8 @@ func (b *Block) Size() int {
 	size := 80 // Block header size
 	size += 9  // Approximate varint for transaction count
 
-	for _, tx := range b.Transactions {
-		size += b.estimateTransactionSize(&tx)
+	for i := range b.Transactions {
+		size += b.estimateTransactionSize(&b.Transactions[i])
 	}
 
 	return size

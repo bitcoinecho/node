@@ -594,13 +594,13 @@ func (se *ScriptEngine) bytesToNum(data []byte) int64 {
 			// Last byte: check sign bit
 			if data[i]&0x80 != 0 {
 				// Negative number
-				result |= int64(data[i]&0x7f) << (8 * uint(i))
+				result |= int64(data[i]&0x7f) << (8 * uint64(i))
 				result = -result
 			} else {
-				result |= int64(data[i]) << (8 * uint(i))
+				result |= int64(data[i]) << (8 * uint64(i))
 			}
 		} else {
-			result |= int64(data[i]) << (8 * uint(i))
+			result |= int64(data[i]) << (8 * uint64(i))
 		}
 	}
 
