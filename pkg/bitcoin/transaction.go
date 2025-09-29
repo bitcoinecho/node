@@ -246,11 +246,11 @@ func DeserializeTransaction(data []byte) (*Transaction, error) {
 		offset += 4
 
 		// Script length
-		scriptLen, bytesRead, err := DecodeVarInt(data[offset:])
+		scriptLen, scriptBytesRead, err := DecodeVarInt(data[offset:])
 		if err != nil {
 			return nil, fmt.Errorf("failed to decode input %d script length: %v", i, err)
 		}
-		offset += bytesRead
+		offset += scriptBytesRead
 
 		// Script
 		// Validate script length before conversion
@@ -274,11 +274,11 @@ func DeserializeTransaction(data []byte) (*Transaction, error) {
 	}
 
 	// Output count
-	outputCount, bytesRead, err := DecodeVarInt(data[offset:])
+	outputCount, outputBytesRead, err := DecodeVarInt(data[offset:])
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode output count: %v", err)
 	}
-	offset += bytesRead
+	offset += outputBytesRead
 
 	// Validate output count before conversion
 	if outputCount > 0x7fffffff { // Max int value
@@ -296,11 +296,11 @@ func DeserializeTransaction(data []byte) (*Transaction, error) {
 		offset += 8
 
 		// Script length
-		scriptLen, bytesRead, err := DecodeVarInt(data[offset:])
+		scriptLen, scriptBytesRead, err := DecodeVarInt(data[offset:])
 		if err != nil {
 			return nil, fmt.Errorf("failed to decode output %d script length: %v", i, err)
 		}
-		offset += bytesRead
+		offset += scriptBytesRead
 
 		// Script
 		// Validate script length before conversion
@@ -321,7 +321,6 @@ func DeserializeTransaction(data []byte) (*Transaction, error) {
 		return nil, fmt.Errorf("insufficient data for locktime")
 	}
 	tx.LockTime = binary.LittleEndian.Uint32(data[offset : offset+4])
-	offset += 4
 
 	// TODO: Handle witness data for SegWit transactions
 	// This would require detecting the witness flag and parsing witness data

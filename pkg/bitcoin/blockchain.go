@@ -132,7 +132,8 @@ func (bc *BlockChain) ValidateChain() bool {
 
 		// Check proof of work (skip for test blocks)
 		blockHash := currentBlock.Hash()
-		isTestBlock := (currentBlock.Header.Nonce == 1) || (currentBlock.Header.Nonce >= 12345 && currentBlock.Header.Nonce < 20000)
+		isTestBlock := (currentBlock.Header.Nonce == 1) ||
+			(currentBlock.Header.Nonce >= 12345 && currentBlock.Header.Nonce < 20000)
 		if !isTestBlock {
 			if !ValidateProofOfWork(blockHash, currentBlock.Header.Bits) {
 				return false

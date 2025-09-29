@@ -1,3 +1,6 @@
+// Package bitcoin implements Bitcoin protocol types and validation.
+// This package provides consensus-critical Bitcoin data structures including
+// blocks, transactions, scripts, and cryptographic operations.
 package bitcoin
 
 import (
@@ -31,7 +34,7 @@ type BlockHeader struct {
 }
 
 // NewBlock creates a new block
-func NewBlock(header BlockHeader, transactions []Transaction) *Block { //nolint:gocritic // header copied intentionally for immutability
+func NewBlock(header BlockHeader, transactions []Transaction) *Block { //nolint:gocritic
 	return &Block{
 		Header:       header,
 		Transactions: transactions,
