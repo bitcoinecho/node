@@ -590,17 +590,22 @@ func (se *ScriptEngine) bytesToNum(data []byte) int64 {
 	// Bitcoin uses little-endian format with sign bit in high bit of last byte
 	var result int64
 	for i := 0; i < len(data); i++ {
+		// Validate index before conversion to avoid overflow
+		if i < 0 || i > 7 { // Bitcoin numbers are max 8 bytes
+			break
+		}
+		shift := uint64(i) * 8
 		if i == len(data)-1 {
 			// Last byte: check sign bit
 			if data[i]&0x80 != 0 {
 				// Negative number
-				result |= int64(data[i]&0x7f) << (8 * uint64(i))
+				result |= int64(data[i]&0x7f) << shift
 				result = -result
 			} else {
-				result |= int64(data[i]) << (8 * uint64(i))
+				result |= int64(data[i]) << shift
 			}
 		} else {
-			result |= int64(data[i]) << (8 * uint64(i))
+			result |= int64(data[i]) << shift
 		}
 	}
 

@@ -303,12 +303,17 @@ func DeserializeTransaction(data []byte) (*Transaction, error) {
 		offset += bytesRead
 
 		// Script
-		if len(data[offset:]) < int(scriptLen) {
+		// Validate script length before conversion
+		if scriptLen > 0x7fffffff { // Max int value
+			return nil, fmt.Errorf("output %d script length too large: %d", i, scriptLen)
+		}
+		scriptLenInt := int(scriptLen)
+		if len(data[offset:]) < scriptLenInt {
 			return nil, fmt.Errorf("insufficient data for output %d script", i)
 		}
 		tx.Outputs[i].ScriptPubKey = make([]byte, scriptLen)
-		copy(tx.Outputs[i].ScriptPubKey, data[offset:offset+int(scriptLen)])
-		offset += int(scriptLen)
+		copy(tx.Outputs[i].ScriptPubKey, data[offset:offset+scriptLenInt])
+		offset += scriptLenInt
 	}
 
 	// Locktime (4 bytes)
