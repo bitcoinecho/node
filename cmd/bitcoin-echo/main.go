@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/bitcoinecho/node/pkg/bitcoin"
+	"bitcoinecho.org/node/pkg/bitcoin"
 )
 
 const (

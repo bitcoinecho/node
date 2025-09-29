@@ -101,8 +101,8 @@ jobs:
       with:
         name: bitcoin-echo-${{ matrix.goos }}-${{ matrix.goarch }}
         path: |
-          ./node/bitcoin-echo-*
-          ./node/checksums.txt
+          bitcoin-echo-*
+          checksums.txt
 
   create-release:
     name: Create GitHub Release
@@ -130,7 +130,7 @@ jobs:
         echo "" >> release_notes.md
         echo "This release includes the latest Bitcoin Echo node implementation with:" >> release_notes.md
         echo "" >> release_notes.md
-        echo "- ✅ **Complete Test Coverage**: $(go test -cover ./node/tests/unit/bitcoin 2>/dev/null | grep coverage || echo '100%') test coverage" >> release_notes.md
+        echo "- ✅ **Complete Test Coverage**: $(go test -cover ./tests/unit/bitcoin 2>/dev/null | grep coverage || echo '100%') test coverage" >> release_notes.md
         echo "- 🔒 **Protocol Fidelity**: Exact Bitcoin consensus rule implementation" >> release_notes.md
         echo "- 🛡️ **Security Focused**: Comprehensive validation and error handling" >> release_notes.md
         echo "- 🧪 **Test-Driven**: All features developed with TDD methodology" >> release_notes.md
