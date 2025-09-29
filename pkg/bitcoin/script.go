@@ -531,8 +531,8 @@ func (s Script) isStandardMultisig() bool {
 	}
 
 	// M should be <= N
-	m := s[0] - 0x50  // OP_1 = 0x51, so M = s[0] - 0x50
-	n := s[len(s)-2] - 0x50 // N = s[len(s)-2] - 0x50
+	m := s[0] - 0x50        // Extract M value from OP_M opcode
+	n := s[len(s)-2] - 0x50 // Extract N value from OP_N opcode
 
 	return m <= n && n <= 3 // Standard multisig is limited to 3 keys max
 }

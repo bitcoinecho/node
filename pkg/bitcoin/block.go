@@ -31,7 +31,7 @@ type BlockHeader struct {
 }
 
 // NewBlock creates a new block
-func NewBlock(header BlockHeader, transactions []Transaction) *Block {
+func NewBlock(header BlockHeader, transactions []Transaction) *Block { //nolint:gocritic // header copied intentionally for immutability
 	return &Block{
 		Header:       header,
 		Transactions: transactions,
@@ -39,7 +39,7 @@ func NewBlock(header BlockHeader, transactions []Transaction) *Block {
 }
 
 // NewBlockHeader creates a new block header
-func NewBlockHeader(version uint32, prevHash Hash256, merkleRoot Hash256, timestamp uint32, bits uint32, nonce uint32) BlockHeader {
+func NewBlockHeader(version uint32, prevHash, merkleRoot Hash256, timestamp, bits, nonce uint32) BlockHeader {
 	return BlockHeader{
 		Version:       version,
 		PrevBlockHash: prevHash,
@@ -52,7 +52,11 @@ func NewBlockHeader(version uint32, prevHash Hash256, merkleRoot Hash256, timest
 
 // Hash returns the block hash
 func (b *Block) Hash() Hash256 {
-	return b.Header.Hash()
+	if b.hash == nil {
+		hash := b.Header.Hash()
+		b.hash = &hash
+	}
+	return *b.hash
 }
 
 // Height returns the block height if known

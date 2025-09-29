@@ -139,6 +139,11 @@ issues:
         - lll
         - gocognit
 
+    # Allow main packages to import internal packages
+    - path: cmd/
+      linters:
+        - depguard
+
     # Exclude magic number warnings for Bitcoin protocol constants
     - text: "Magic number"
       linters:
