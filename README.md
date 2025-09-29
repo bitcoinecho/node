@@ -32,21 +32,22 @@ Bitcoin Echo aims to provide:
 - Script execution: 100% coverage (40+ execution test cases)
 - **✅ Transaction serialization: 100% coverage (VarInt, wire format, SegWit)**
 - **✅ ECDSA signature verification: 100% coverage (OP_CHECKSIG implementation)**
-- **✅ Overall project: 94/94 tests passing (100% success rate)**
+- **✅ Merkle tree construction: 100% coverage (Bitcoin protocol-compliant)**
+- **✅ Overall project: 97/97 tests passing (100% success rate)**
 
 ✅ **Recently Completed:**
+- **✅ Merkle Tree Implementation**: Complete Bitcoin merkle tree construction with TDD methodology
+- **✅ Block Transaction Summarization**: Level-by-level tree building with proper odd-count handling
 - **✅ ECDSA Signature Verification**: Complete OP_CHECKSIG implementation with TDD methodology
 - **✅ Script Execution Complete**: Stack-based interpreter with cryptographic validation
 - **✅ Transaction Serialization**: Bitcoin protocol-compliant binary format with VarInt encoding
-- **✅ SegWit Support**: Full witness transaction serialization and detection
-- **✅ Wire Format**: Complete Bitcoin transaction encoding/decoding with proper byte ordering
-- **✅ Test Suite Achievement**: 94/94 tests passing with comprehensive coverage
+- **✅ Test Suite Achievement**: 97/97 tests passing with comprehensive coverage
 
 🔜 **Next Implementation Priorities:**
-- Merkle tree construction and validation
 - Proof-of-work verification and difficulty adjustment
 - Basic P2P networking foundation
 - UTXO set management and storage
+- Block chain validation engine
 
 See [WHITEPAPER.md](./WHITEPAPER.md) for the complete architectural specification and philosophy.
 
@@ -116,6 +117,8 @@ Bitcoin Echo is structured with clear separation between consensus rules (immuta
 - ✅ **Genesis Block verification**: `000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f`
 - Block validation with coinbase and transaction checks
 - Block size/weight limit enforcement (1MB/4M weight units)
+- **✅ Merkle tree construction**: Level-by-level Bitcoin protocol implementation
+- **✅ Transaction summarization**: Proper odd-count handling with last hash duplication
 
 **Script Analysis Engine:**
 - Complete Bitcoin script type detection and classification
