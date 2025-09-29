@@ -1,38 +1,39 @@
-package bitcoin
+package bitcoin_test
 
 import (
 	"testing"
 	"time"
+	"bitcoinecho.org/node/pkg/bitcoin"
 )
 
 // TestNewBlock tests block creation
 func TestNewBlock(t *testing.T) {
 	// Create a sample block header
-	header := NewBlockHeader(
+	header := bitcoin.NewBlockHeader(
 		1,                    // version
-		ZeroHash,             // previous block hash (genesis)
-		ZeroHash,             // merkle root (placeholder)
+		bitcoin.ZeroHash,             // previous block hash (genesis)
+		bitcoin.ZeroHash,             // merkle root (placeholder)
 		1640995200,           // timestamp (Jan 1, 2022)
 		0x1d00ffff,           // difficulty bits
 		12345,                // nonce
 	)
 
 	// Create a sample coinbase transaction
-	coinbaseTx := &Transaction{
+	coinbaseTx := &bitcoin.Transaction{
 		Version: 1,
-		Inputs: []TxInput{{
-			PreviousOutput: OutPoint{Hash: ZeroHash, Index: 0xffffffff},
+		Inputs: []bitcoin.TxInput{{
+			PreviousOutput: bitcoin.OutPoint{Hash: bitcoin.ZeroHash, Index: 0xffffffff},
 			ScriptSig:      []byte("Genesis block coinbase"),
 			Sequence:       0xffffffff,
 		}},
-		Outputs: []TxOutput{{
+		Outputs: []bitcoin.TxOutput{{
 			Value:        5000000000, // 50 BTC
 			ScriptPubKey: []byte{0x76, 0xa9, 0x14}, // P2PKH placeholder
 		}},
 		LockTime: 0,
 	}
 
-	block := NewBlock(header, []Transaction{*coinbaseTx})
+	block := bitcoin.NewBlock(header, []bitcoin.Transaction{*coinbaseTx})
 
 	if block.Header.Version != 1 {
 		t.Errorf("expected version 1, got %d", block.Header.Version)
@@ -49,10 +50,10 @@ func TestNewBlock(t *testing.T) {
 
 // TestNewBlockHeader tests block header creation
 func TestNewBlockHeader(t *testing.T) {
-	prevHash := Hash256{0x01, 0x02, 0x03}
-	merkleRoot := Hash256{0x04, 0x05, 0x06}
+	prevHash := bitcoin.Hash256{0x01, 0x02, 0x03}
+	merkleRoot := bitcoin.Hash256{0x04, 0x05, 0x06}
 
-	header := NewBlockHeader(2, prevHash, merkleRoot, 1640995200, 0x1d00ffff, 54321)
+	header := bitcoin.NewBlockHeader(2, prevHash, merkleRoot, 1640995200, 0x1d00ffff, 54321)
 
 	if header.Version != 2 {
 		t.Errorf("expected version 2, got %d", header.Version)
@@ -83,25 +84,25 @@ func TestNewBlockHeader(t *testing.T) {
 func TestBlock_IsGenesis(t *testing.T) {
 	tests := []struct {
 		name         string
-		prevHash     Hash256
+		prevHash     bitcoin.Hash256
 		expectedBool bool
 	}{
 		{
 			name:         "genesis block (zero prev hash)",
-			prevHash:     ZeroHash,
+			prevHash:     bitcoin.ZeroHash,
 			expectedBool: true,
 		},
 		{
 			name:         "non-genesis block",
-			prevHash:     Hash256{0x01},
+			prevHash:     bitcoin.Hash256{0x01},
 			expectedBool: false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			header := NewBlockHeader(1, tt.prevHash, ZeroHash, 1640995200, 0x1d00ffff, 0)
-			block := NewBlock(header, []Transaction{})
+			header := bitcoin.NewBlockHeader(1, tt.prevHash, bitcoin.ZeroHash, 1640995200, 0x1d00ffff, 0)
+			block := bitcoin.NewBlock(header, []bitcoin.Transaction{})
 
 			result := block.IsGenesis()
 			if result != tt.expectedBool {
@@ -115,37 +116,37 @@ func TestBlock_IsGenesis(t *testing.T) {
 func TestBlock_HasCoinbase(t *testing.T) {
 	tests := []struct {
 		name         string
-		transactions []Transaction
+		transactions []bitcoin.Transaction
 		expected     bool
 	}{
 		{
 			name:         "no transactions",
-			transactions: []Transaction{},
+			transactions: []bitcoin.Transaction{},
 			expected:     false,
 		},
 		{
 			name: "has coinbase transaction",
-			transactions: []Transaction{{
+			transactions: []bitcoin.Transaction{{
 				Version: 1,
-				Inputs: []TxInput{{
-					PreviousOutput: OutPoint{Hash: ZeroHash, Index: 0xffffffff},
+				Inputs: []bitcoin.TxInput{{
+					PreviousOutput: bitcoin.OutPoint{Hash: bitcoin.ZeroHash, Index: 0xffffffff},
 					ScriptSig:      []byte("coinbase"),
 					Sequence:       0xffffffff,
 				}},
-				Outputs: []TxOutput{{Value: 5000000000, ScriptPubKey: []byte{0x76}}},
+				Outputs: []bitcoin.TxOutput{{Value: 5000000000, ScriptPubKey: []byte{0x76}}},
 			}},
 			expected: true,
 		},
 		{
 			name: "first transaction not coinbase",
-			transactions: []Transaction{{
+			transactions: []bitcoin.Transaction{{
 				Version: 1,
-				Inputs: []TxInput{{
-					PreviousOutput: OutPoint{Hash: Hash256{0x01}, Index: 0},
+				Inputs: []bitcoin.TxInput{{
+					PreviousOutput: bitcoin.OutPoint{Hash: bitcoin.Hash256{0x01}, Index: 0},
 					ScriptSig:      []byte{},
 					Sequence:       0xffffffff,
 				}},
-				Outputs: []TxOutput{{Value: 1000000, ScriptPubKey: []byte{0x76}}},
+				Outputs: []bitcoin.TxOutput{{Value: 1000000, ScriptPubKey: []byte{0x76}}},
 			}},
 			expected: false,
 		},
@@ -153,8 +154,8 @@ func TestBlock_HasCoinbase(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			header := NewBlockHeader(1, ZeroHash, ZeroHash, 1640995200, 0x1d00ffff, 0)
-			block := NewBlock(header, tt.transactions)
+			header := bitcoin.NewBlockHeader(1, bitcoin.ZeroHash, bitcoin.ZeroHash, 1640995200, 0x1d00ffff, 0)
+			block := bitcoin.NewBlock(header, tt.transactions)
 
 			result := block.HasCoinbase()
 			if result != tt.expected {
@@ -167,53 +168,53 @@ func TestBlock_HasCoinbase(t *testing.T) {
 // TestBlock_CoinbaseTransaction tests coinbase transaction retrieval
 func TestBlock_CoinbaseTransaction(t *testing.T) {
 	// Create coinbase transaction
-	coinbaseTx := Transaction{
+	coinbaseTx := bitcoin.Transaction{
 		Version: 1,
-		Inputs: []TxInput{{
-			PreviousOutput: OutPoint{Hash: ZeroHash, Index: 0xffffffff},
+		Inputs: []bitcoin.TxInput{{
+			PreviousOutput: bitcoin.OutPoint{Hash: bitcoin.ZeroHash, Index: 0xffffffff},
 			ScriptSig:      []byte("Genesis coinbase"),
 			Sequence:       0xffffffff,
 		}},
-		Outputs: []TxOutput{{Value: 5000000000, ScriptPubKey: []byte{0x76, 0xa9}}},
+		Outputs: []bitcoin.TxOutput{{Value: 5000000000, ScriptPubKey: []byte{0x76, 0xa9}}},
 	}
 
 	// Create regular transaction
-	regularTx := Transaction{
+	regularTx := bitcoin.Transaction{
 		Version: 1,
-		Inputs: []TxInput{{
-			PreviousOutput: OutPoint{Hash: Hash256{0x01}, Index: 0},
+		Inputs: []bitcoin.TxInput{{
+			PreviousOutput: bitcoin.OutPoint{Hash: bitcoin.Hash256{0x01}, Index: 0},
 			ScriptSig:      []byte{0x76, 0xa9},
 			Sequence:       0xffffffff,
 		}},
-		Outputs: []TxOutput{{Value: 1000000, ScriptPubKey: []byte{0x76}}},
+		Outputs: []bitcoin.TxOutput{{Value: 1000000, ScriptPubKey: []byte{0x76}}},
 	}
 
 	tests := []struct {
 		name         string
-		transactions []Transaction
+		transactions []bitcoin.Transaction
 		expectNil    bool
 	}{
 		{
 			name:         "no transactions",
-			transactions: []Transaction{},
+			transactions: []bitcoin.Transaction{},
 			expectNil:    true,
 		},
 		{
 			name:         "has coinbase transaction",
-			transactions: []Transaction{coinbaseTx, regularTx},
+			transactions: []bitcoin.Transaction{coinbaseTx, regularTx},
 			expectNil:    false,
 		},
 		{
 			name:         "first transaction not coinbase",
-			transactions: []Transaction{regularTx},
+			transactions: []bitcoin.Transaction{regularTx},
 			expectNil:    true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			header := NewBlockHeader(1, ZeroHash, ZeroHash, 1640995200, 0x1d00ffff, 0)
-			block := NewBlock(header, tt.transactions)
+			header := bitcoin.NewBlockHeader(1, bitcoin.ZeroHash, bitcoin.ZeroHash, 1640995200, 0x1d00ffff, 0)
+			block := bitcoin.NewBlock(header, tt.transactions)
 
 			coinbase := block.CoinbaseTransaction()
 
@@ -246,13 +247,13 @@ func TestBlock_TransactionCount(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			transactions := make([]Transaction, tt.txCount)
+			transactions := make([]bitcoin.Transaction, tt.txCount)
 			for i := 0; i < tt.txCount; i++ {
-				transactions[i] = Transaction{Version: 1}
+				transactions[i] = bitcoin.Transaction{Version: 1}
 			}
 
-			header := NewBlockHeader(1, ZeroHash, ZeroHash, 1640995200, 0x1d00ffff, 0)
-			block := NewBlock(header, transactions)
+			header := bitcoin.NewBlockHeader(1, bitcoin.ZeroHash, bitcoin.ZeroHash, 1640995200, 0x1d00ffff, 0)
+			block := bitcoin.NewBlock(header, transactions)
 
 			count := block.TransactionCount()
 			if count != tt.expected {
@@ -264,8 +265,8 @@ func TestBlock_TransactionCount(t *testing.T) {
 
 // TestBlock_Height tests block height management
 func TestBlock_Height(t *testing.T) {
-	header := NewBlockHeader(1, ZeroHash, ZeroHash, 1640995200, 0x1d00ffff, 0)
-	block := NewBlock(header, []Transaction{})
+	header := bitcoin.NewBlockHeader(1, bitcoin.ZeroHash, bitcoin.ZeroHash, 1640995200, 0x1d00ffff, 0)
+	block := bitcoin.NewBlock(header, []bitcoin.Transaction{})
 
 	// Initially height should be nil
 	if block.Height() != nil {
@@ -291,7 +292,7 @@ func TestBlock_Height(t *testing.T) {
 // TestBlockHeader_Time tests timestamp conversion
 func TestBlockHeader_Time(t *testing.T) {
 	timestamp := uint32(1640995200) // Jan 1, 2022 00:00:00 UTC
-	header := NewBlockHeader(1, ZeroHash, ZeroHash, timestamp, 0x1d00ffff, 0)
+	header := bitcoin.NewBlockHeader(1, bitcoin.ZeroHash, bitcoin.ZeroHash, timestamp, 0x1d00ffff, 0)
 
 	expectedTime := time.Unix(1640995200, 0)
 	actualTime := header.Time()
@@ -304,7 +305,7 @@ func TestBlockHeader_Time(t *testing.T) {
 // TestBlockHeader_Difficulty tests difficulty access
 func TestBlockHeader_Difficulty(t *testing.T) {
 	bits := uint32(0x1d00ffff)
-	header := NewBlockHeader(1, ZeroHash, ZeroHash, 1640995200, bits, 0)
+	header := bitcoin.NewBlockHeader(1, bitcoin.ZeroHash, bitcoin.ZeroHash, 1640995200, bits, 0)
 
 	difficulty := header.Difficulty()
 	if difficulty != bits {
@@ -314,8 +315,8 @@ func TestBlockHeader_Difficulty(t *testing.T) {
 
 // TestBlock_Hash tests block hashing (currently returns zero)
 func TestBlock_Hash(t *testing.T) {
-	header := NewBlockHeader(1, ZeroHash, ZeroHash, 1640995200, 0x1d00ffff, 0)
-	block := NewBlock(header, []Transaction{})
+	header := bitcoin.NewBlockHeader(1, bitcoin.ZeroHash, bitcoin.ZeroHash, 1640995200, 0x1d00ffff, 0)
+	block := bitcoin.NewBlock(header, []bitcoin.Transaction{})
 
 	hash1 := block.Hash()
 	hash2 := block.Hash()
@@ -333,7 +334,7 @@ func TestBlock_Hash(t *testing.T) {
 
 // TestBlockHeader_Hash tests header hashing with real implementation
 func TestBlockHeader_Hash(t *testing.T) {
-	header := NewBlockHeader(1, ZeroHash, ZeroHash, 1640995200, 0x1d00ffff, 12345)
+	header := bitcoin.NewBlockHeader(1, bitcoin.ZeroHash, bitcoin.ZeroHash, 1640995200, 0x1d00ffff, 12345)
 
 	hash1 := header.Hash()
 	hash2 := header.Hash()
@@ -356,15 +357,15 @@ func TestBlockHeader_Hash_GenesisBlock(t *testing.T) {
 	// Bitcoin Genesis Block header data
 	// https://blockstream.info/block/000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
 
-	merkleRoot, err := NewHash256FromString("4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b")
+	merkleRoot, err := bitcoin.NewHash256FromString("4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b")
 	if err != nil {
 		t.Fatalf("failed to create merkle root hash: %v", err)
 	}
 
 	// Genesis block header
-	genesisHeader := NewBlockHeader(
+	genesisHeader := bitcoin.NewBlockHeader(
 		1,              // version
-		ZeroHash,       // previous block hash (genesis has no previous)
+		bitcoin.ZeroHash,       // previous block hash (genesis has no previous)
 		merkleRoot,     // merkle root
 		1231006505,     // timestamp (Jan 3, 2009 18:15:05 UTC)
 		0x1d00ffff,     // bits (difficulty)
@@ -387,14 +388,14 @@ func TestBlockHeader_Hash_GenesisBlock(t *testing.T) {
 // TestBlock_Validate tests basic block validation
 func TestBlock_Validate(t *testing.T) {
 	// Create valid coinbase transaction
-	validCoinbase := Transaction{
+	validCoinbase := bitcoin.Transaction{
 		Version: 1,
-		Inputs: []TxInput{{
-			PreviousOutput: OutPoint{Hash: ZeroHash, Index: 0xffffffff},
+		Inputs: []bitcoin.TxInput{{
+			PreviousOutput: bitcoin.OutPoint{Hash: bitcoin.ZeroHash, Index: 0xffffffff},
 			ScriptSig:      []byte("Block validation test"),
 			Sequence:       0xffffffff,
 		}},
-		Outputs: []TxOutput{{
+		Outputs: []bitcoin.TxOutput{{
 			Value:        5000000000,
 			ScriptPubKey: []byte{0x76, 0xa9, 0x14},
 		}},
@@ -402,14 +403,14 @@ func TestBlock_Validate(t *testing.T) {
 	}
 
 	// Create valid regular transaction
-	validRegular := Transaction{
+	validRegular := bitcoin.Transaction{
 		Version: 1,
-		Inputs: []TxInput{{
-			PreviousOutput: OutPoint{Hash: Hash256{0x01}, Index: 0},
+		Inputs: []bitcoin.TxInput{{
+			PreviousOutput: bitcoin.OutPoint{Hash: bitcoin.Hash256{0x01}, Index: 0},
 			ScriptSig:      []byte{0x76, 0xa9},
 			Sequence:       0xffffffff,
 		}},
-		Outputs: []TxOutput{{
+		Outputs: []bitcoin.TxOutput{{
 			Value:        1000000000,
 			ScriptPubKey: []byte{0x76, 0xa9},
 		}},
@@ -418,35 +419,35 @@ func TestBlock_Validate(t *testing.T) {
 
 	tests := []struct {
 		name         string
-		transactions []Transaction
+		transactions []bitcoin.Transaction
 		expectError  bool
 		errorMsg     string
 	}{
 		{
 			name:         "valid block with coinbase only",
-			transactions: []Transaction{validCoinbase},
+			transactions: []bitcoin.Transaction{validCoinbase},
 			expectError:  false,
 		},
 		{
 			name:         "valid block with coinbase and regular tx",
-			transactions: []Transaction{validCoinbase, validRegular},
+			transactions: []bitcoin.Transaction{validCoinbase, validRegular},
 			expectError:  false,
 		},
 		{
 			name:         "no transactions",
-			transactions: []Transaction{},
+			transactions: []bitcoin.Transaction{},
 			expectError:  true,
 			errorMsg:     "block has no transactions",
 		},
 		{
 			name:         "first transaction not coinbase",
-			transactions: []Transaction{validRegular},
+			transactions: []bitcoin.Transaction{validRegular},
 			expectError:  true,
 			errorMsg:     "first transaction is not coinbase",
 		},
 		{
 			name:         "multiple coinbase transactions",
-			transactions: []Transaction{validCoinbase, validCoinbase},
+			transactions: []bitcoin.Transaction{validCoinbase, validCoinbase},
 			expectError:  true,
 			errorMsg:     "transaction 1 is coinbase (only first can be)",
 		},
@@ -454,8 +455,8 @@ func TestBlock_Validate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			header := NewBlockHeader(1, ZeroHash, ZeroHash, 1640995200, 0x1d00ffff, 0)
-			block := NewBlock(header, tt.transactions)
+			header := bitcoin.NewBlockHeader(1, bitcoin.ZeroHash, bitcoin.ZeroHash, 1640995200, 0x1d00ffff, 0)
+			block := bitcoin.NewBlock(header, tt.transactions)
 
 			err := block.Validate()
 
@@ -509,7 +510,7 @@ func TestBlockHeader_Validate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			header := NewBlockHeader(1, ZeroHash, ZeroHash, tt.timestamp, 0x1d00ffff, 0)
+			header := bitcoin.NewBlockHeader(1, bitcoin.ZeroHash, bitcoin.ZeroHash, tt.timestamp, 0x1d00ffff, 0)
 
 			err := header.Validate()
 
@@ -533,22 +534,22 @@ func TestBlockHeader_Validate(t *testing.T) {
 // TestBlock_Size tests block size estimation
 func TestBlock_Size(t *testing.T) {
 	// Create simple transaction for size testing
-	simpleTx := Transaction{
+	simpleTx := bitcoin.Transaction{
 		Version: 1,
-		Inputs: []TxInput{{
-			PreviousOutput: OutPoint{Hash: ZeroHash, Index: 0xffffffff},
+		Inputs: []bitcoin.TxInput{{
+			PreviousOutput: bitcoin.OutPoint{Hash: bitcoin.ZeroHash, Index: 0xffffffff},
 			ScriptSig:      []byte("simple"),
 			Sequence:       0xffffffff,
 		}},
-		Outputs: []TxOutput{{
+		Outputs: []bitcoin.TxOutput{{
 			Value:        5000000000,
 			ScriptPubKey: []byte{0x76, 0xa9},
 		}},
 		LockTime: 0,
 	}
 
-	header := NewBlockHeader(1, ZeroHash, ZeroHash, 1640995200, 0x1d00ffff, 0)
-	block := NewBlock(header, []Transaction{simpleTx})
+	header := bitcoin.NewBlockHeader(1, bitcoin.ZeroHash, bitcoin.ZeroHash, 1640995200, 0x1d00ffff, 0)
+	block := bitcoin.NewBlock(header, []bitcoin.Transaction{simpleTx})
 
 	size := block.Size()
 
@@ -565,22 +566,22 @@ func TestBlock_Size(t *testing.T) {
 
 // TestBlock_Weight tests block weight calculation
 func TestBlock_Weight(t *testing.T) {
-	simpleTx := Transaction{
+	simpleTx := bitcoin.Transaction{
 		Version: 1,
-		Inputs: []TxInput{{
-			PreviousOutput: OutPoint{Hash: ZeroHash, Index: 0xffffffff},
+		Inputs: []bitcoin.TxInput{{
+			PreviousOutput: bitcoin.OutPoint{Hash: bitcoin.ZeroHash, Index: 0xffffffff},
 			ScriptSig:      []byte("weight test"),
 			Sequence:       0xffffffff,
 		}},
-		Outputs: []TxOutput{{
+		Outputs: []bitcoin.TxOutput{{
 			Value:        5000000000,
 			ScriptPubKey: []byte{0x76, 0xa9},
 		}},
 		LockTime: 0,
 	}
 
-	header := NewBlockHeader(1, ZeroHash, ZeroHash, 1640995200, 0x1d00ffff, 0)
-	block := NewBlock(header, []Transaction{simpleTx})
+	header := bitcoin.NewBlockHeader(1, bitcoin.ZeroHash, bitcoin.ZeroHash, 1640995200, 0x1d00ffff, 0)
+	block := bitcoin.NewBlock(header, []bitcoin.Transaction{simpleTx})
 
 	weight := block.Weight()
 	size := block.Size()
@@ -592,30 +593,30 @@ func TestBlock_Weight(t *testing.T) {
 	}
 
 	// Weight should be within limits for a simple block
-	if weight > MaxBlockWeight {
-		t.Errorf("block weight %d exceeds maximum %d", weight, MaxBlockWeight)
+	if weight > bitcoin.MaxBlockWeight {
+		t.Errorf("block weight %d exceeds maximum %d", weight, bitcoin.MaxBlockWeight)
 	}
 }
 
 // TestBlockConstants tests Bitcoin block constants
 func TestBlockConstants(t *testing.T) {
-	// Test MaxBlockSize constant
+	// Test bitcoin.MaxBlockSize constant
 	expectedMaxSize := 1000000 // 1MB
-	if MaxBlockSize != expectedMaxSize {
-		t.Errorf("MaxBlockSize should be %d, got %d", expectedMaxSize, MaxBlockSize)
+	if bitcoin.MaxBlockSize != expectedMaxSize {
+		t.Errorf("bitcoin.MaxBlockSize should be %d, got %d", expectedMaxSize, bitcoin.MaxBlockSize)
 	}
 
-	// Test MaxBlockWeight constant
+	// Test bitcoin.MaxBlockWeight constant
 	expectedMaxWeight := 4000000 // 4M weight units
-	if MaxBlockWeight != expectedMaxWeight {
-		t.Errorf("MaxBlockWeight should be %d, got %d", expectedMaxWeight, MaxBlockWeight)
+	if bitcoin.MaxBlockWeight != expectedMaxWeight {
+		t.Errorf("bitcoin.MaxBlockWeight should be %d, got %d", expectedMaxWeight, bitcoin.MaxBlockWeight)
 	}
 }
 
 // BenchmarkBlock_Hash benchmarks block hashing
 func BenchmarkBlock_Hash(b *testing.B) {
-	header := NewBlockHeader(1, ZeroHash, ZeroHash, 1640995200, 0x1d00ffff, 0)
-	block := NewBlock(header, []Transaction{})
+	header := bitcoin.NewBlockHeader(1, bitcoin.ZeroHash, bitcoin.ZeroHash, 1640995200, 0x1d00ffff, 0)
+	block := bitcoin.NewBlock(header, []bitcoin.Transaction{})
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -626,22 +627,22 @@ func BenchmarkBlock_Hash(b *testing.B) {
 // BenchmarkBlock_Validate benchmarks block validation
 func BenchmarkBlock_Validate(b *testing.B) {
 	// Create valid block with coinbase
-	coinbase := Transaction{
+	coinbase := bitcoin.Transaction{
 		Version: 1,
-		Inputs: []TxInput{{
-			PreviousOutput: OutPoint{Hash: ZeroHash, Index: 0xffffffff},
+		Inputs: []bitcoin.TxInput{{
+			PreviousOutput: bitcoin.OutPoint{Hash: bitcoin.ZeroHash, Index: 0xffffffff},
 			ScriptSig:      []byte("Benchmark coinbase"),
 			Sequence:       0xffffffff,
 		}},
-		Outputs: []TxOutput{{
+		Outputs: []bitcoin.TxOutput{{
 			Value:        5000000000,
 			ScriptPubKey: []byte{0x76, 0xa9, 0x14},
 		}},
 		LockTime: 0,
 	}
 
-	header := NewBlockHeader(1, ZeroHash, ZeroHash, 1640995200, 0x1d00ffff, 0)
-	block := NewBlock(header, []Transaction{coinbase})
+	header := bitcoin.NewBlockHeader(1, bitcoin.ZeroHash, bitcoin.ZeroHash, 1640995200, 0x1d00ffff, 0)
+	block := bitcoin.NewBlock(header, []bitcoin.Transaction{coinbase})
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

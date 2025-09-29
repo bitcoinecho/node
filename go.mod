@@ -1,7 +1,3 @@
-module github.com/bitcoinecho/node
+module bitcoinecho.org/node
 
 go 1.21
-
-require (
-    // Core dependencies will be added as needed
-)

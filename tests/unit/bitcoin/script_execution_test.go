@@ -1,8 +1,10 @@
-package bitcoin
+package bitcoin_test
 
 import (
+	"bytes"
 	"encoding/hex"
 	"testing"
+	"bitcoinecho.org/node/pkg/bitcoin"
 )
 
 // TestScriptEngine_Execute tests Bitcoin script execution with real Bitcoin scripts
@@ -12,89 +14,89 @@ func TestScriptEngine_Execute(t *testing.T) {
 		scriptHex  string           // Script as hex string
 		expected   bool             // Expected execution result
 		finalStack []string         // Expected final stack state (hex strings)
-		flags      ScriptFlags      // Script verification flags
+		flags      bitcoin.ScriptFlags      // Script verification flags
 	}{
 		// Basic stack operations
 		{
-			name:       "OP_1 pushes 1 to stack",
-			scriptHex:  "51", // OP_1
+			name:       "bitcoin.OP_1 pushes 1 to stack",
+			scriptHex:  "51", // bitcoin.OP_1
 			expected:   true,
 			finalStack: []string{"01"}, // 1 as single byte
-			flags:      ScriptFlagsNone,
+			flags:      bitcoin.ScriptFlagsNone,
 		},
 		{
-			name:       "OP_2 pushes 2 to stack",
-			scriptHex:  "52", // OP_2
+			name:       "bitcoin.OP_2 pushes 2 to stack",
+			scriptHex:  "52", // bitcoin.OP_2
 			expected:   true,
 			finalStack: []string{"02"}, // 2 as single byte
-			flags:      ScriptFlagsNone,
+			flags:      bitcoin.ScriptFlagsNone,
 		},
 		{
 			name:       "Push data operation",
 			scriptHex:  "0548656c6c6f", // PUSH(5) "Hello"
 			expected:   true,
 			finalStack: []string{"48656c6c6f"}, // "Hello" in hex
-			flags:      ScriptFlagsNone,
+			flags:      bitcoin.ScriptFlagsNone,
 		},
 		{
-			name:       "OP_DUP duplicates top stack item",
-			scriptHex:  "5176", // OP_1 OP_DUP
+			name:       "bitcoin.OP_DUP duplicates top stack item",
+			scriptHex:  "5176", // bitcoin.OP_1 bitcoin.OP_DUP
 			expected:   true,
 			finalStack: []string{"01", "01"}, // Two copies of 1
-			flags:      ScriptFlagsNone,
+			flags:      bitcoin.ScriptFlagsNone,
 		},
 		{
-			name:       "OP_DROP removes top stack item",
-			scriptHex:  "515275", // OP_1 OP_2 OP_DROP
+			name:       "bitcoin.OP_DROP removes top stack item",
+			scriptHex:  "515275", // bitcoin.OP_1 bitcoin.OP_2 bitcoin.OP_DROP
 			expected:   true,
 			finalStack: []string{"01"}, // Only 1 remains
-			flags:      ScriptFlagsNone,
+			flags:      bitcoin.ScriptFlagsNone,
 		},
 
 		// Arithmetic operations
 		{
 			name:       "OP_ADD adds two numbers",
-			scriptHex:  "515293", // OP_1 OP_2 OP_ADD
+			scriptHex:  "515293", // bitcoin.OP_1 bitcoin.OP_2 OP_ADD
 			expected:   true,
 			finalStack: []string{"03"}, // 1 + 2 = 3
-			flags:      ScriptFlagsNone,
+			flags:      bitcoin.ScriptFlagsNone,
 		},
 		{
 			name:       "OP_SUB subtracts two numbers",
-			scriptHex:  "525194", // OP_2 OP_1 OP_SUB
+			scriptHex:  "525194", // bitcoin.OP_2 bitcoin.OP_1 OP_SUB
 			expected:   true,
 			finalStack: []string{"01"}, // 2 - 1 = 1
-			flags:      ScriptFlagsNone,
+			flags:      bitcoin.ScriptFlagsNone,
 		},
 
 		// Logical operations
 		{
 			name:       "OP_EQUAL compares equal values",
-			scriptHex:  "515187", // OP_1 OP_1 OP_EQUAL
+			scriptHex:  "515187", // bitcoin.OP_1 bitcoin.OP_1 OP_EQUAL
 			expected:   true,
 			finalStack: []string{"01"}, // True (1)
-			flags:      ScriptFlagsNone,
+			flags:      bitcoin.ScriptFlagsNone,
 		},
 		{
 			name:       "OP_EQUAL compares different values",
-			scriptHex:  "515287", // OP_1 OP_2 OP_EQUAL
+			scriptHex:  "515287", // bitcoin.OP_1 bitcoin.OP_2 OP_EQUAL
 			expected:   true,
 			finalStack: []string{"00"}, // False (0)
-			flags:      ScriptFlagsNone,
+			flags:      bitcoin.ScriptFlagsNone,
 		},
 		{
 			name:       "OP_EQUALVERIFY with equal values",
-			scriptHex:  "515188", // OP_1 OP_1 OP_EQUALVERIFY
+			scriptHex:  "515188", // bitcoin.OP_1 bitcoin.OP_1 OP_EQUALVERIFY
 			expected:   true,
 			finalStack: []string{}, // Stack should be empty after verify
-			flags:      ScriptFlagsNone,
+			flags:      bitcoin.ScriptFlagsNone,
 		},
 		{
 			name:       "OP_EQUALVERIFY with different values (should fail)",
-			scriptHex:  "515288", // OP_1 OP_2 OP_EQUALVERIFY
+			scriptHex:  "515288", // bitcoin.OP_1 bitcoin.OP_2 OP_EQUALVERIFY
 			expected:   false,     // Should fail verification
 			finalStack: []string{},
-			flags:      ScriptFlagsNone,
+			flags:      bitcoin.ScriptFlagsNone,
 		},
 
 		// Hash operations
@@ -103,16 +105,16 @@ func TestScriptEngine_Execute(t *testing.T) {
 			scriptHex:  "0548656c6c6fa9", // PUSH(5) "Hello" OP_HASH160
 			expected:   true,
 			finalStack: []string{"b6a9c8c230722b7c748331a8b450f05566dc7d0f"}, // HASH160("Hello")
-			flags:      ScriptFlagsNone,
+			flags:      bitcoin.ScriptFlagsNone,
 		},
 
 		// Complex scripts
 		{
 			name:       "Simple P2PKH-like pattern (without signature)",
-			scriptHex:  "76a914" + "b6a9c8c230722b7c748331a8b450f05566dc7d0f" + "87", // OP_DUP OP_HASH160 <hash> OP_EQUAL
+			scriptHex:  "76a914" + "b6a9c8c230722b7c748331a8b450f05566dc7d0f" + "87", // bitcoin.OP_DUP OP_HASH160 <hash> OP_EQUAL
 			expected:   false, // Should fail without matching data on stack
 			finalStack: []string{},
-			flags:      ScriptFlagsNone,
+			flags:      bitcoin.ScriptFlagsNone,
 		},
 
 		// Error conditions
@@ -121,21 +123,21 @@ func TestScriptEngine_Execute(t *testing.T) {
 			scriptHex:  "",
 			expected:   true, // Empty script should succeed
 			finalStack: []string{},
-			flags:      ScriptFlagsNone,
+			flags:      bitcoin.ScriptFlagsNone,
 		},
 		{
-			name:       "OP_DUP with empty stack (should fail)",
-			scriptHex:  "76", // OP_DUP
+			name:       "bitcoin.OP_DUP with empty stack (should fail)",
+			scriptHex:  "76", // bitcoin.OP_DUP
 			expected:   false,
 			finalStack: []string{},
-			flags:      ScriptFlagsNone,
+			flags:      bitcoin.ScriptFlagsNone,
 		},
 		{
 			name:       "OP_ADD with insufficient stack items (should fail)",
-			scriptHex:  "5193", // OP_1 OP_ADD (needs 2 items)
+			scriptHex:  "5193", // bitcoin.OP_1 OP_ADD (needs 2 items)
 			expected:   false,
 			finalStack: []string{},
-			flags:      ScriptFlagsNone,
+			flags:      bitcoin.ScriptFlagsNone,
 		},
 	}
 
@@ -148,8 +150,8 @@ func TestScriptEngine_Execute(t *testing.T) {
 			}
 
 			// Create script engine (no transaction context needed for basic tests)
-			script := Script(scriptBytes)
-			engine := NewScriptEngine(script, nil, 0, nil, tt.flags)
+			script := bitcoin.Script(scriptBytes)
+			engine := bitcoin.NewScriptEngine(script, nil, 0, nil, tt.flags)
 
 			// Execute script
 			result, err := engine.Execute()
@@ -177,7 +179,7 @@ func TestScriptEngine_Execute(t *testing.T) {
 						t.Fatalf("Invalid expected stack hex at index %d: %v", i, err)
 					}
 
-					if !bytesEqual(actualStack[i], expected) {
+					if !bytes.Equal(actualStack[i], expected) {
 						t.Errorf("Stack item %d: expected %x, got %x", i, expected, actualStack[i])
 					}
 				}
@@ -197,7 +199,7 @@ func TestScriptEngine_StackOperations(t *testing.T) {
 	tests := []struct {
 		name        string
 		operations  []struct {
-			opcode     ScriptOpcode
+			opcode     bitcoin.ScriptOpcode
 			data       []byte // For push operations
 			expectFail bool   // True if this operation should fail
 		}
@@ -207,16 +209,16 @@ func TestScriptEngine_StackOperations(t *testing.T) {
 		{
 			name: "Stack depth management",
 			operations: []struct {
-				opcode     ScriptOpcode
+				opcode     bitcoin.ScriptOpcode
 				data       []byte
 				expectFail bool
 			}{
-				{OP_1, nil, false},      // Push 1
-				{OP_2, nil, false},      // Push 2
-				{OP_3, nil, false},      // Push 3
-				{OP_DROP, nil, false},   // Drop 3
-				{OP_SWAP, nil, false},   // Swap 1,2 -> 2,1
-				{OP_DUP, nil, false},    // Duplicate 1 -> 2,1,1
+				{bitcoin.OP_1, nil, false},      // Push 1
+				{bitcoin.OP_2, nil, false},      // Push 2
+				{bitcoin.OP_3, nil, false},      // Push 3
+				{bitcoin.OP_DROP, nil, false},   // Drop 3
+				{bitcoin.OP_SWAP, nil, false},   // Swap 1,2 -> 2,1
+				{bitcoin.OP_DUP, nil, false},    // Duplicate 1 -> 2,1,1
 			},
 			finalStackSize: 3, // Should have [2, 1, 1]
 			description:    "Complex stack manipulation should maintain correct state",
@@ -224,13 +226,13 @@ func TestScriptEngine_StackOperations(t *testing.T) {
 		{
 			name: "Stack underflow protection",
 			operations: []struct {
-				opcode     ScriptOpcode
+				opcode     bitcoin.ScriptOpcode
 				data       []byte
 				expectFail bool
 			}{
-				{OP_1, nil, false},     // Push 1
-				{OP_DROP, nil, false},  // Drop 1 (stack empty)
-				{OP_DROP, nil, true},   // Try to drop from empty stack - should fail
+				{bitcoin.OP_1, nil, false},     // Push 1
+				{bitcoin.OP_DROP, nil, false},  // Drop 1 (stack empty)
+				{bitcoin.OP_DROP, nil, true},   // Try to drop from empty stack - should fail
 			},
 			finalStackSize: 0,
 			description:    "Operations on empty stack should fail safely",
@@ -252,8 +254,8 @@ func TestScriptEngine_StackOperations(t *testing.T) {
 				}
 			}
 
-			script := Script(scriptBytes)
-			engine := NewScriptEngine(script, nil, 0, nil, ScriptFlagsNone)
+			script := bitcoin.Script(scriptBytes)
+			engine := bitcoin.NewScriptEngine(script, nil, 0, nil, bitcoin.ScriptFlagsNone)
 
 			result, err := engine.Execute()
 
@@ -290,11 +292,11 @@ func TestScriptEngine_StackOperations(t *testing.T) {
 // TestScriptEngine_Benchmarks tests for performance regressions
 func TestScriptEngine_Benchmarks(t *testing.T) {
 	// Simple benchmark test to ensure execution performance
-	scriptBytes, _ := hex.DecodeString("51525293") // OP_1 OP_2 OP_ADD -> pushes 3
-	script := Script(scriptBytes)
+	scriptBytes, _ := hex.DecodeString("51525293") // bitcoin.OP_1 bitcoin.OP_2 OP_ADD -> pushes 3
+	script := bitcoin.Script(scriptBytes)
 
 	for i := 0; i < 1000; i++ {
-		engine := NewScriptEngine(script, nil, 0, nil, ScriptFlagsNone)
+		engine := bitcoin.NewScriptEngine(script, nil, 0, nil, bitcoin.ScriptFlagsNone)
 		result, err := engine.Execute()
 		if !result || err != nil {
 			t.Fatalf("Benchmark script failed on iteration %d: %v", i, err)

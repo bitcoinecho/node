@@ -13,6 +13,8 @@ Bitcoin Echo aims to provide:
 
 **Current Development Phase**: Test-Driven Implementation (September 2025)
 
+✅ **Project Structure Reorganized**: Tests moved to `tests/unit/bitcoin/` with proper Go module structure
+
 ✅ **Foundation Complete:**
 - Core Bitcoin types (Hash256, Transaction, Block, Script)
 - Comprehensive test suite with TDD approach
@@ -30,10 +32,15 @@ Bitcoin Echo aims to provide:
 - Script execution: 100% coverage (40+ execution test cases)
 - **Overall project: 84.7% coverage achieved**
 
-🚧 **Next Implementation Priorities:**
-- Transaction serialization and witness data handling
+🚧 **Currently Implementing:**
+- **Transaction Serialization**: Bitcoin protocol-compliant binary format
+- Variable-length integer encoding (VarInt) for Bitcoin wire format
+- Witness data serialization for SegWit transactions
+
+🔜 **Next Implementation Priorities:**
 - Merkle tree construction and validation
 - Proof-of-work verification and difficulty adjustment
+- Signature verification (ECDSA/Schnorr)
 
 See [WHITEPAPER.md](./WHITEPAPER.md) for the complete architectural specification and philosophy.
 
@@ -45,14 +52,14 @@ go build ./cmd/bitcoin-echo
 
 # Run all tests with coverage
 go test -v ./...
-go test -cover ./pkg/bitcoin
+go test -cover ./tests/unit/bitcoin
 
 # Run specific test suites
-go test -v ./pkg/bitcoin -run TestHash
-go test -v ./pkg/bitcoin -run TestTransaction
-go test -v ./pkg/bitcoin -run TestBlock
-go test -v ./pkg/bitcoin -run TestScript
-go test -v ./pkg/bitcoin -run TestScriptEngine
+go test -v ./tests/unit/bitcoin -run TestHash
+go test -v ./tests/unit/bitcoin -run TestTransaction
+go test -v ./tests/unit/bitcoin -run TestBlock
+go test -v ./tests/unit/bitcoin -run TestScript
+go test -v ./tests/unit/bitcoin -run TestScriptEngine
 
 # Clean dependencies
 go mod tidy

@@ -21,9 +21,10 @@ type Transaction struct {
 
 // TxInput represents a transaction input
 type TxInput struct {
-	PreviousOutput OutPoint `json:"previous_output"`
-	ScriptSig      []byte   `json:"script_sig"`
-	Sequence       uint32   `json:"sequence"`
+	PreviousOutput OutPoint  `json:"previous_output"`
+	ScriptSig      []byte    `json:"script_sig"`
+	Sequence       uint32    `json:"sequence"`
+	Witness        [][]byte  `json:"witness,omitempty"` // SegWit witness data
 }
 
 // TxOutput represents a transaction output
@@ -51,6 +52,34 @@ func NewTransaction(version uint32, inputs []TxInput, outputs []TxOutput, lockTi
 		Outputs:  outputs,
 		LockTime: lockTime,
 	}
+}
+
+// Serialize converts the transaction to Bitcoin wire format
+func (tx *Transaction) Serialize() ([]byte, error) {
+	// TODO: Implement Bitcoin transaction serialization
+	// This will be implemented in TDD Green phase
+	return nil, fmt.Errorf("Serialize method not yet implemented")
+}
+
+// DeserializeTransaction deserializes a transaction from Bitcoin wire format
+func DeserializeTransaction(data []byte) (*Transaction, error) {
+	// TODO: Implement Bitcoin transaction deserialization
+	// This will be implemented in TDD Green phase
+	return nil, fmt.Errorf("DeserializeTransaction function not yet implemented")
+}
+
+// EncodeVarInt encodes an integer as a Bitcoin variable-length integer
+func EncodeVarInt(value uint64) []byte {
+	// TODO: Implement VarInt encoding
+	// This will be implemented in TDD Green phase
+	return nil
+}
+
+// DecodeVarInt decodes a Bitcoin variable-length integer
+func DecodeVarInt(data []byte) (uint64, int) {
+	// TODO: Implement VarInt decoding
+	// This will be implemented in TDD Green phase
+	return 0, 0
 }
 
 // Hash returns the transaction ID (excludes witness data)

@@ -1,7 +1,8 @@
-package bitcoin
+package bitcoin_test
 
 import (
 	"testing"
+	"bitcoinecho.org/node/pkg/bitcoin"
 )
 
 // TestHash256_NewHash256FromBytes tests creating Hash256 from byte slices
@@ -46,7 +47,7 @@ func TestHash256_NewHash256FromBytes(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			hash, err := NewHash256FromBytes(tt.input)
+			hash, err := bitcoin.NewHash256FromBytes(tt.input)
 
 			if tt.expectError {
 				if err == nil {
@@ -119,7 +120,7 @@ func TestHash256_NewHash256FromString(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			hash, err := NewHash256FromString(tt.input)
+			hash, err := bitcoin.NewHash256FromString(tt.input)
 
 			if tt.expectError {
 				if err == nil {
@@ -144,22 +145,22 @@ func TestHash256_NewHash256FromString(t *testing.T) {
 func TestHash256_IsZero(t *testing.T) {
 	tests := []struct {
 		name     string
-		hash     Hash256
+		hash     bitcoin.Hash256
 		expected bool
 	}{
 		{
 			name:     "zero hash",
-			hash:     ZeroHash,
+			hash:     bitcoin.ZeroHash,
 			expected: true,
 		},
 		{
 			name:     "non-zero hash",
-			hash:     Hash256{0x01},
+			hash:     bitcoin.Hash256{0x01},
 			expected: false,
 		},
 		{
 			name:     "all FF hash",
-			hash:     Hash256{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+			hash:     bitcoin.Hash256{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
 			expected: false,
 		},
 	}
@@ -176,7 +177,7 @@ func TestHash256_IsZero(t *testing.T) {
 
 // TestHash256_Bytes tests the Bytes method
 func TestHash256_Bytes(t *testing.T) {
-	testHash := Hash256{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20}
+	testHash := bitcoin.Hash256{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20}
 
 	bytes := testHash.Bytes()
 
@@ -222,11 +223,11 @@ func TestDoubleHashSHA256(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := DoubleHashSHA256(tt.input)
+			result := bitcoin.DoubleHashSHA256(tt.input)
 			resultHex := result.String()
 
 			if resultHex != tt.expected {
-				t.Errorf("DoubleHashSHA256(%q) = %s; expected %s", tt.input, resultHex, tt.expected)
+				t.Errorf("bitcoin.DoubleHashSHA256(%q) = %s; expected %s", tt.input, resultHex, tt.expected)
 			}
 		})
 	}
@@ -236,7 +237,7 @@ func TestDoubleHashSHA256(t *testing.T) {
 func TestDoubleHashSHA256_KnownBitcoinValues(t *testing.T) {
 	// Test the empty input case - this is a well-known value in Bitcoin
 	// SHA256(SHA256("")) = 5df6e0e2761359d30a8275058e299fcc0381534545f55cf43e41983f5d4c9456
-	emptyHash := DoubleHashSHA256([]byte{})
+	emptyHash := bitcoin.DoubleHashSHA256([]byte{})
 	expectedEmpty := "5df6e0e2761359d30a8275058e299fcc0381534545f55cf43e41983f5d4c9456"
 
 	if emptyHash.String() != expectedEmpty {
@@ -276,7 +277,7 @@ func TestHash160_NewHash160FromBytes(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			hash, err := NewHash160FromBytes(tt.input)
+			hash, err := bitcoin.NewHash160FromBytes(tt.input)
 
 			if tt.expectError {
 				if err == nil {
@@ -299,7 +300,7 @@ func TestHash160_NewHash160FromBytes(t *testing.T) {
 
 // TestHash160_Bytes tests the Hash160 Bytes method
 func TestHash160_Bytes(t *testing.T) {
-	testHash := Hash160{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14}
+	testHash := bitcoin.Hash160{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14}
 
 	bytes := testHash.Bytes()
 
@@ -320,7 +321,7 @@ func BenchmarkDoubleHashSHA256(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = DoubleHashSHA256(data)
+		_ = bitcoin.DoubleHashSHA256(data)
 	}
 }
 
@@ -330,6 +331,6 @@ func BenchmarkNewHash256FromString(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = NewHash256FromString(hashStr)
+		_, _ = bitcoin.NewHash256FromString(hashStr)
 	}
 }
