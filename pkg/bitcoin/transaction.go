@@ -197,6 +197,62 @@ func (tx *Transaction) Serialize() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+// serializeForHashing serializes transaction for hashing (excludes witness data)
+func (tx *Transaction) serializeForHashing() ([]byte, error) {
+	var buf bytes.Buffer
+
+	// Version (4 bytes, little-endian)
+	if err := binary.Write(&buf, binary.LittleEndian, tx.Version); err != nil {
+		return nil, fmt.Errorf("failed to write version: %w", err)
+	}
+
+	// Input count (varint)
+	buf.Write(EncodeVarInt(uint64(len(tx.Inputs))))
+
+	// Inputs (without witness data)
+	for _, input := range tx.Inputs {
+		// Previous output hash (32 bytes, reversed for wire format)
+		hashBytes := input.PreviousOutput.Hash.Bytes()
+		for i := len(hashBytes) - 1; i >= 0; i-- {
+			buf.WriteByte(hashBytes[i])
+		}
+		// Previous output index (4 bytes, little-endian)
+		if err := binary.Write(&buf, binary.LittleEndian, input.PreviousOutput.Index); err != nil {
+			return nil, fmt.Errorf("failed to write previous output index: %w", err)
+		}
+		// Script length (varint)
+		buf.Write(EncodeVarInt(uint64(len(input.ScriptSig))))
+		// Script
+		buf.Write(input.ScriptSig)
+		// Sequence (4 bytes, little-endian)
+		if err := binary.Write(&buf, binary.LittleEndian, input.Sequence); err != nil {
+			return nil, fmt.Errorf("failed to write sequence: %w", err)
+		}
+	}
+
+	// Output count (varint)
+	buf.Write(EncodeVarInt(uint64(len(tx.Outputs))))
+
+	// Outputs
+	for _, output := range tx.Outputs {
+		// Value (8 bytes, little-endian)
+		if err := binary.Write(&buf, binary.LittleEndian, output.Value); err != nil {
+			return nil, fmt.Errorf("failed to write output value: %w", err)
+		}
+		// Script length (varint)
+		buf.Write(EncodeVarInt(uint64(len(output.ScriptPubKey))))
+		// Script
+		buf.Write(output.ScriptPubKey)
+	}
+
+	// Locktime (4 bytes, little-endian)
+	if err := binary.Write(&buf, binary.LittleEndian, tx.LockTime); err != nil {
+		return nil, fmt.Errorf("failed to write locktime: %w", err)
+	}
+
+	return buf.Bytes(), nil
+}
+
 // DeserializeTransaction deserializes a transaction from Bitcoin wire format
 func DeserializeTransaction(data []byte) (*Transaction, error) {
 	if len(data) == 0 {
@@ -337,10 +393,24 @@ func DeserializeTransaction(data []byte) (*Transaction, error) {
 // Hash returns the transaction ID (excludes witness data)
 func (tx *Transaction) Hash() Hash256 {
 	if tx.hash == nil {
-		// TODO: Implement transaction serialization and hashing
-		// For now, return zero hash
-		hash := ZeroHash
-		tx.hash = &hash
+		// Serialize transaction without witness data and hash with double SHA-256
+		serialized, err := tx.serializeForHashing()
+		if err != nil {
+			// In case of serialization error, return zero hash
+			hash := ZeroHash
+			tx.hash = &hash
+		} else {
+			rawHash := DoubleHashSHA256(serialized)
+
+			// Bitcoin displays transaction hashes in reverse byte order
+			var hash Hash256
+			rawBytes := rawHash.Bytes()
+			for i := 0; i < 32; i++ {
+				hash[i] = rawBytes[31-i]
+			}
+
+			tx.hash = &hash
+		}
 	}
 	return *tx.hash
 }

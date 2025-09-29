@@ -244,6 +244,12 @@ func TestBlockChain_UTXO_Integration(t *testing.T) {
 			utxoSet := blockchain.GetUTXOSet()
 			actualUTXOs := utxoSet.Size()
 
+			// Debug: print all UTXOs to see what's happening
+			allUTXOs := utxoSet.GetAllUTXOs()
+			for i, utxo := range allUTXOs {
+				t.Logf("UTXO %d: %s:%d = %d satoshis", i, utxo.TxHash().String(), utxo.OutputIndex(), utxo.Amount())
+			}
+
 			if actualUTXOs != tt.expectedUTXOs {
 				t.Errorf("Expected %d UTXOs, got %d", tt.expectedUTXOs, actualUTXOs)
 			}
@@ -294,15 +300,25 @@ func TestBlockChain_Reorganization(t *testing.T) {
 			blockchain := setupBlockChain(tt.mainChain)
 			originalTip := blockchain.GetTip().Hash()
 
+			// Debug: print chain info
+			t.Logf("Main chain height: %d, tip: %s", blockchain.Height(), originalTip.String())
+			if blockchain.Height() >= 0 {
+				genesis := blockchain.GetBlock(0)
+				t.Logf("Genesis hash: %s", genesis.Hash().String())
+			}
+
 			// Create competing fork
 			forkBlocks := createForkChain(tt.forkChain)
 
 			// This should fail since we haven't implemented reorganization yet
 			reorgOccurred := false
-			for _, block := range forkBlocks {
+			for i, block := range forkBlocks {
+				t.Logf("Adding fork block %d: %s (nonce=%d)", i, block.Hash().String(), block.Header.Nonce)
 				err := blockchain.AddBlock(block)
+				t.Logf("Block addition result: error=%v, new tip=%s", err, blockchain.GetTip().Hash().String())
 				if err == nil && blockchain.GetTip().Hash() != originalTip {
 					reorgOccurred = true
+					t.Logf("Reorganization detected at block %d", i)
 				}
 			}
 
@@ -434,6 +450,43 @@ func createCoinbaseTransaction(amount uint64) *bitcoin.Transaction {
 	)
 }
 
+func createUniqueCoinbaseTransaction(amount uint64, height int) *bitcoin.Transaction {
+	// Create a unique coinbase transaction by including height in scriptSig
+	heightBytes := []byte{byte(height & 0xff), byte((height >> 8) & 0xff), byte((height >> 16) & 0xff), byte((height >> 24) & 0xff)}
+	scriptSig := append([]byte{0x04, 0xff, 0xff, 0x00, 0x1d}, heightBytes...)
+
+	input := bitcoin.TxInput{
+		PreviousOutput: bitcoin.OutPoint{
+			Hash:  bitcoin.ZeroHash,
+			Index: 0xffffffff,
+		},
+		ScriptSig: scriptSig, // Unique script with height
+		Sequence:  0xffffffff,
+	}
+
+	output := bitcoin.TxOutput{
+		Value: amount,
+		ScriptPubKey: []byte{
+			0x41, // OP_PUSHDATA 65 bytes
+			0x04, 0x67, 0x8a, 0xfd, 0xb0, 0xfe, 0x55, 0x48, 0x27, 0x19,
+			0x67, 0xf1, 0xa6, 0x71, 0x30, 0xb7, 0x10, 0x5c, 0xd6, 0xa8,
+			0x28, 0xe0, 0x39, 0x09, 0xa6, 0x79, 0x62, 0xe0, 0xea, 0x1f,
+			0x61, 0xde, 0xb6, 0x49, 0xf6, 0xbc, 0x3f, 0x4c, 0xef, 0x38,
+			0xc4, 0xf3, 0x55, 0x04, 0xe5, 0x1e, 0xc1, 0x12, 0xde, 0x5c,
+			0x38, 0x4d, 0xf7, 0xba, 0x0b, 0x8d, 0x57, 0x8a, 0x4c, 0x70,
+			0x2b, 0x6b, 0xf1, 0x1d, 0x5f,
+			0xac, // OP_CHECKSIG
+		},
+	}
+
+	return bitcoin.NewTransaction(
+		1,                          // version
+		[]bitcoin.TxInput{input},   // inputs
+		[]bitcoin.TxOutput{output}, // outputs
+		0,                          // locktime
+	)
+}
+
 func setupBlockChain(numBlocks int) *bitcoin.BlockChain {
 	blockchain := bitcoin.NewBlockChain(createGenesisBlock())
 
@@ -461,7 +514,8 @@ func createValidBlockAfter(prevBlock *bitcoin.Block, height int) *bitcoin.Block 
 		Nonce:         uint32(12345 + height),
 	}
 
-	coinbaseTx := createCoinbaseTransaction(5000000000)
+	// Create unique coinbase transaction for each block
+	coinbaseTx := createUniqueCoinbaseTransaction(5000000000, height)
 	return bitcoin.NewBlock(header, []bitcoin.Transaction{*coinbaseTx})
 }
 
@@ -469,9 +523,31 @@ func applyChainCorruption(blockchain *bitcoin.BlockChain, corruption string) {
 	// Simulate different types of corruption for testing
 	switch corruption {
 	case "corrupt_block_1":
-		// Would corrupt block at index 1
+		// Corrupt block at index 1 by modifying its nonce
+		if blockchain.Height() >= 1 {
+			block := blockchain.GetBlock(1)
+			if block != nil {
+				// Create a corrupted version by changing the nonce
+				corruptedHeader := block.Header
+				corruptedHeader.Nonce = 999999 // Invalid nonce
+				corruptedBlock := bitcoin.NewBlock(corruptedHeader, block.Transactions)
+				// Force replace the block in the blockchain (for testing purposes)
+				// Note: This is a test hack - real blockchain wouldn't allow this
+				blockchain.ForceReplaceBlock(1, corruptedBlock)
+			}
+		}
 	case "break_chain_link":
-		// Would break the chain linkage
+		// Break the chain linkage by corrupting previous hash
+		if blockchain.Height() >= 1 {
+			block := blockchain.GetBlock(1)
+			if block != nil {
+				// Create a block with wrong previous hash
+				corruptedHeader := block.Header
+				corruptedHeader.PrevBlockHash = mustParseHash("1111111111111111111111111111111111111111111111111111111111111111")
+				corruptedBlock := bitcoin.NewBlock(corruptedHeader, block.Transactions)
+				blockchain.ForceReplaceBlock(1, corruptedBlock)
+			}
+		}
 	}
 }
 
@@ -482,10 +558,33 @@ func createBlockWithTransaction(txType string) *bitcoin.Block {
 }
 
 func createForkChain(length int) []*bitcoin.Block {
-	// Create a competing fork chain
+	// Create a competing fork chain that branches from Genesis
 	blocks := make([]*bitcoin.Block, length)
+
+	genesisHash := mustParseHash("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f")
+
 	for i := 0; i < length; i++ {
-		blocks[i] = createValidBlock(i + 100) // Different nonces to create fork
+		var prevHash bitcoin.Hash256
+		if i == 0 {
+			// First fork block builds on Genesis
+			prevHash = genesisHash
+		} else {
+			// Subsequent blocks build on previous fork block
+			prevHash = blocks[i-1].Hash()
+		}
+
+		header := bitcoin.BlockHeader{
+			Version:       1,
+			PrevBlockHash: prevHash,
+			MerkleRoot:    mustParseHash("0000000000000000000000000000000000000000000000000000000000000002"),
+			Timestamp:     uint32(1231006505 + (i+100)*600), // Different timestamps
+			Bits:          0x1d00ffff,
+			Nonce:         uint32(50000 + i), // Different nonces for fork
+		}
+
+		// Create unique coinbase for fork blocks
+		coinbaseTx := createUniqueCoinbaseTransaction(5000000000, i+100)
+		blocks[i] = bitcoin.NewBlock(header, []bitcoin.Transaction{*coinbaseTx})
 	}
 	return blocks
 }
