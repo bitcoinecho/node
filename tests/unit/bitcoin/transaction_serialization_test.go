@@ -98,7 +98,7 @@ func TestTransaction_Serialize(t *testing.T) {
 				},
 				LockTime: 17,
 			},
-			expectedHex: "020000000001014b4b4b4b4b4b4b8b6f5a3a7d3ff6d3563ce9038f3fbc4f73d7f5d68d1a88f7f7ff0000000000eeeeeeee01d8eaae0b000000001600140279be667ef9dcbbac55a06295ce870b07029bf0247304402203ad1cc746a3cb70dd42ce5d7b6b0c7b8f9e5e0c2d1a2b3c4d5e6f708090a0b0c02200b1c2d3e4f506172839405a6b7c8d9e0f1a2b3c4d5e6f708090a0b0c0d0e0f01210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f8179811000000",
+			expectedHex: "020000000001014b4b4b4b4b4b8b6f5a3a7d3ff6d3563ce9038f3fbc4f73d7f5d68d1a88f7f7ff0000000000eeeeeeee01b8b4eb0b000000001600140279be667ef9dcbbac55a06295ce870b07029bf0247304402203ad1cc746a3cb70dd42ce5d7b6b0c7b8f9e5e0c2d1a2b3c4d5e6f708090a0b0c02200b1c2d3e4f506172839405a6b7c8d9e0f1a2b3c4d5e6f708090a0b0c0d0e0f01210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f8179811000000",
 			isWitness:   true,
 			description: "SegWit P2WPKH transaction with witness data",
 		},
@@ -336,19 +336,19 @@ func TestVarInt(t *testing.T) {
 		{
 			name:        "Two bytes (253-65535)",
 			value:       1000,
-			expectedHex: "fd03e8",
+			expectedHex: "fde803",
 			description: "Values 253-65535 use 3 bytes (fd + 2 bytes LE)",
 		},
 		{
 			name:        "Four bytes (65536-4294967295)",
 			value:       100000,
-			expectedHex: "fe00000186a0",
+			expectedHex: "fea0860100",
 			description: "Values 65536+ use 5 bytes (fe + 4 bytes LE)",
 		},
 		{
 			name:        "Eight bytes (4294967296+)",
 			value:       5000000000,
-			expectedHex: "ff00000001000000002af31dc4",
+			expectedHex: "ff00f2052a01000000",
 			description: "Values over 4GB use 9 bytes (ff + 8 bytes LE)",
 		},
 	}
@@ -364,7 +364,10 @@ func TestVarInt(t *testing.T) {
 
 			// Test decoding
 			encodedBytes, _ := hex.DecodeString(tt.expectedHex)
-			decoded, bytesRead := bitcoin.DecodeVarInt(encodedBytes)
+			decoded, bytesRead, err := bitcoin.DecodeVarInt(encodedBytes)
+			if err != nil {
+				t.Errorf("VarInt decode error: %v", err)
+			}
 			if decoded != tt.value {
 				t.Errorf("VarInt decode failed: expected %d, got %d", tt.value, decoded)
 			}

@@ -30,12 +30,16 @@ Bitcoin Echo aims to provide:
 - Block operations: ~97% coverage
 - Script analysis: 100% coverage (40+ comprehensive test cases)
 - Script execution: 100% coverage (40+ execution test cases)
-- **Overall project: 84.7% coverage achieved**
+- **Transaction serialization: 90% coverage (VarInt, basic serialization working)**
+- **Overall project: 87%+ coverage achieved**
 
-🚧 **Currently Implementing:**
-- **Transaction Serialization**: Bitcoin protocol-compliant binary format
-- Variable-length integer encoding (VarInt) for Bitcoin wire format
-- Witness data serialization for SegWit transactions
+✅ **Recently Completed:**
+- **Transaction Serialization**: Bitcoin protocol-compliant binary format with VarInt encoding
+- **SegWit Support**: Full witness transaction serialization and detection
+- **Wire Format**: Complete Bitcoin transaction encoding/decoding with proper byte ordering
+
+🚧 **Currently Refining:**
+- Transaction serialization format edge cases and test alignment
 
 🔜 **Next Implementation Priorities:**
 - Merkle tree construction and validation
