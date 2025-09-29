@@ -12,6 +12,7 @@ type Script []byte
 type ScriptOpcode byte
 
 // Script operation codes
+//
 //nolint:stylecheck // Bitcoin opcodes use underscore naming convention
 const (
 	// Constants

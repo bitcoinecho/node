@@ -254,7 +254,7 @@ func (b *Block) Validate() error {
 	return nil
 }
 
-// ValidateHeader performs block header validation
+// Validate performs block header validation
 func (bh *BlockHeader) Validate() error {
 	// Check timestamp is not too far in future (2 hours)
 	maxTime := time.Now().Add(2 * time.Hour)
