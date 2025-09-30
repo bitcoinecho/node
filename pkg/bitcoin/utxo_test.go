@@ -159,6 +159,51 @@ func TestUTXOSet_AddRemove(t *testing.T) {
 	}
 }
 
+// TestUTXOSet_Remove_EdgeCases tests Remove function edge cases
+func TestUTXOSet_Remove_EdgeCases(t *testing.T) {
+	utxoSet := NewUTXOSet()
+
+	// Add a UTXO first
+	txHash, _ := NewHash256FromString("abcd1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab")
+	utxo := NewUTXO(txHash, 0, 5000000000, []byte{0x76, 0xa9})
+	utxoSet.Add(utxo)
+
+	// Test removing existing UTXO (should return true)
+	removed := utxoSet.Remove(txHash, 0)
+	if !removed {
+		t.Error("Expected Remove to return true for existing UTXO")
+	}
+
+	if utxoSet.Size() != 0 {
+		t.Errorf("Expected empty set after removal, got size %d", utxoSet.Size())
+	}
+
+	// Test removing non-existent UTXO (should return false)
+	nonExistentHash, _ := NewHash256FromString("9999999999999999999999999999999999999999999999999999999999999999")
+	removed = utxoSet.Remove(nonExistentHash, 0)
+	if removed {
+		t.Error("Expected Remove to return false for non-existent UTXO")
+	}
+
+	// Test removing from empty set (should return false)
+	removed = utxoSet.Remove(txHash, 0)
+	if removed {
+		t.Error("Expected Remove to return false when removing from empty set")
+	}
+
+	// Test removing with wrong output index (should return false)
+	utxoSet.Add(utxo) // Add back the UTXO
+	removed = utxoSet.Remove(txHash, 99)
+	if removed {
+		t.Error("Expected Remove to return false for wrong output index")
+	}
+
+	// UTXO should still be there since we removed with wrong index
+	if utxoSet.Size() != 1 {
+		t.Errorf("Expected set size 1 after failed removal, got %d", utxoSet.Size())
+	}
+}
+
 // TestUTXOSet_Find tests UTXO lookup operations (TDD RED phase)
 func TestUTXOSet_Find(t *testing.T) {
 	tests := []struct {

@@ -965,3 +965,70 @@ func TestBlockChain_ProcessBlockTransactions(t *testing.T) {
 		t.Error("Spent UTXO was not removed")
 	}
 }
+
+// TestForceReplaceBlock tests the ForceReplaceBlock function edge cases
+func TestForceReplaceBlock(t *testing.T) {
+	// Create genesis block first
+	genesisBlock := createGenesisBlock()
+	blockchain := NewBlockChain(genesisBlock)
+
+	// Add a second block
+	block1 := createValidNextBlock()
+	err := blockchain.AddBlock(block1)
+	if err != nil {
+		t.Fatalf("Failed to add block 1: %v", err)
+	}
+
+	// Test replacing block at valid height
+	newBlock := createValidNextBlock()
+	newBlock.Header.Nonce = 99999 // Different nonce
+
+	blockchain.ForceReplaceBlock(1, newBlock)
+
+	// Verify the block was replaced
+	replacedBlock := blockchain.GetBlock(1)
+	if replacedBlock == nil {
+		t.Fatal("Expected block at height 1 after replacement")
+	}
+	if replacedBlock.Header.Nonce != 99999 {
+		t.Errorf("Expected nonce 99999, got %d", replacedBlock.Header.Nonce)
+	}
+
+	// Verify tip was updated since we replaced the last block
+	if blockchain.tip != newBlock {
+		t.Error("Expected tip to be updated when replacing last block")
+	}
+
+	// Test replacing block at height 0 (should not update tip)
+	newGenesisBlock := createGenesisBlock()
+	newGenesisBlock.Header.Nonce = 77777
+
+	blockchain.ForceReplaceBlock(0, newGenesisBlock)
+
+	// Verify genesis was replaced but tip wasn't changed
+	replacedGenesis := blockchain.GetBlock(0)
+	if replacedGenesis.Header.Nonce != 77777 {
+		t.Errorf("Expected genesis nonce 77777, got %d", replacedGenesis.Header.Nonce)
+	}
+	if blockchain.tip == newGenesisBlock {
+		t.Error("Tip should not change when replacing non-tip block")
+	}
+
+	// Test replacing with negative height (should do nothing)
+	beforeHeight := blockchain.Height()
+	blockchain.ForceReplaceBlock(-1, newBlock)
+	if blockchain.Height() != beforeHeight {
+		t.Error("Height should not change for negative height replacement")
+	}
+
+	// Test replacing with height beyond chain length (should do nothing)
+	blockchain.ForceReplaceBlock(100, newBlock)
+	if blockchain.Height() != beforeHeight {
+		t.Error("Height should not change for out-of-bounds height replacement")
+	}
+
+	// Verify original structure is maintained for invalid operations
+	if blockchain.GetBlock(100) != nil {
+		t.Error("Should not be able to get block at invalid height")
+	}
+}

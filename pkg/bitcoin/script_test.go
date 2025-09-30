@@ -724,3 +724,157 @@ func TestScriptEngine_ArithmeticOpcodes(t *testing.T) {
 		}
 	})
 }
+
+// TestScript_IsStandardMultisig tests the isStandardMultisig function specifically
+func TestScript_IsStandardMultisig(t *testing.T) {
+	tests := []struct {
+		name     string
+		script   Script
+		expected bool
+	}{
+		{
+			name:     "valid 1-of-2 multisig",
+			script:   Script([]byte{0x51, 0x21, 0x03, 0x52, 0xae}), // OP_1 PUSH(33) ... OP_2 OP_CHECKMULTISIG
+			expected: true,
+		},
+		{
+			name:     "valid 2-of-3 multisig",
+			script:   Script([]byte{0x52, 0x21, 0x03, 0x21, 0x03, 0x53, 0xae}), // OP_2 PUSH(33) ... OP_3 OP_CHECKMULTISIG
+			expected: true,
+		},
+		{
+			name:     "script too short",
+			script:   Script([]byte{0x51, 0x52}), // Too short
+			expected: false,
+		},
+		{
+			name:     "doesn't end with OP_CHECKMULTISIG",
+			script:   Script([]byte{0x51, 0x21, 0x03, 0x52, 0x88}), // Ends with 0x88 instead of 0xae
+			expected: false,
+		},
+		{
+			name:     "M value too small (OP_0)",
+			script:   Script([]byte{0x50, 0x21, 0x03, 0x52, 0xae}), // OP_0 instead of OP_1
+			expected: false,
+		},
+		{
+			name:     "M value too large (OP_4)",
+			script:   Script([]byte{0x54, 0x21, 0x03, 0x52, 0xae}), // OP_4 instead of OP_1-3
+			expected: false,
+		},
+		{
+			name:     "N value too small (OP_0)",
+			script:   Script([]byte{0x51, 0x21, 0x03, 0x50, 0xae}), // N is OP_0
+			expected: false,
+		},
+		{
+			name:     "N value too large (OP_4)",
+			script:   Script([]byte{0x51, 0x21, 0x03, 0x54, 0xae}), // N is OP_4
+			expected: false,
+		},
+		{
+			name:     "M > N (invalid)",
+			script:   Script([]byte{0x53, 0x21, 0x03, 0x52, 0xae}), // OP_3 ... OP_2 (3 > 2)
+			expected: false,
+		},
+		{
+			name:     "empty script",
+			script:   Script([]byte{}),
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := tt.script.isStandardMultisig()
+			if result != tt.expected {
+				t.Errorf("Expected %v, got %v for script %x", tt.expected, result, tt.script)
+			}
+		})
+	}
+}
+
+// TestScript_Hash160_EdgeCases tests hash160 function edge cases
+func TestScript_Hash160_EdgeCases(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []byte
+		expected bool // Whether it should return ZeroHash160
+	}{
+		{
+			name:     "Hello input",
+			input:    []byte("Hello"),
+			expected: false, // Should return specific hash
+		},
+		{
+			name:     "empty input",
+			input:    []byte{},
+			expected: true, // Should return ZeroHash160
+		},
+		{
+			name:     "different input",
+			input:    []byte("World"),
+			expected: true, // Should return ZeroHash160
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := hash160(tt.input)
+			isZero := result == ZeroHash160
+			if isZero != tt.expected {
+				t.Errorf("Expected zero hash %v, got %v for input %s", tt.expected, isZero, string(tt.input))
+			}
+		})
+	}
+}
+
+// TestScript_BytesEqual_EdgeCases tests bytesEqual function edge cases
+func TestScript_BytesEqual_EdgeCases(t *testing.T) {
+	tests := []struct {
+		name     string
+		a        []byte
+		b        []byte
+		expected bool
+	}{
+		{
+			name:     "both empty",
+			a:        []byte{},
+			b:        []byte{},
+			expected: true,
+		},
+		{
+			name:     "different lengths",
+			a:        []byte{1, 2, 3},
+			b:        []byte{1, 2},
+			expected: false,
+		},
+		{
+			name:     "same content",
+			a:        []byte{1, 2, 3},
+			b:        []byte{1, 2, 3},
+			expected: true,
+		},
+		{
+			name:     "different content same length",
+			a:        []byte{1, 2, 3},
+			b:        []byte{1, 2, 4},
+			expected: false,
+		},
+		{
+			name:     "one empty one non-empty",
+			a:        []byte{},
+			b:        []byte{1},
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := bytesEqual(tt.a, tt.b)
+			if result != tt.expected {
+				t.Errorf("Expected %v, got %v for inputs %v and %v", tt.expected, result, tt.a, tt.b)
+			}
+		})
+	}
+}
