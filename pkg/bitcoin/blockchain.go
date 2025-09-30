@@ -242,7 +242,6 @@ func (bc *BlockChain) handlePotentialReorganization(block *Block) error {
 		// Main chain blocks from fork point: len(bc.blocks) - forkIndex - 1
 		mainChainFromFork := len(bc.blocks) - forkIndex - 1
 
-
 		// Only reorganize if fork is STRICTLY longer (not equal)
 		if forkLength > mainChainFromFork {
 			// Reorganize to this fork
@@ -264,7 +263,6 @@ func (bc *BlockChain) handlePotentialReorganization(block *Block) error {
 	// Compare blocks built from the fork point
 	forkBlocksFromPoint := 1 // This new block
 	mainChainFromFork := len(bc.blocks) - forkPoint - 1
-
 
 	if forkBlocksFromPoint > mainChainFromFork {
 		// Reorganize: replace main chain from fork point

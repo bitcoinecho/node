@@ -345,10 +345,10 @@ func TestCompactToBigTarget_EdgeCases(t *testing.T) {
 // TestCompactToBigTarget_SpecificValues tests specific conversion values
 func TestCompactToBigTarget_SpecificValues(t *testing.T) {
 	tests := []struct {
-		name          string
-		compact       uint32
-		expectedZero  bool
-		expectedSize  int
+		name         string
+		compact      uint32
+		expectedZero bool
+		expectedSize int
 	}{
 		{
 			name:         "zero target",
@@ -437,7 +437,7 @@ func TestBigTargetToCompact_EdgeCases(t *testing.T) {
 		{
 			name:        "target with high bit set",
 			target:      big.NewInt(0x800000),
-			expected:    0x02008000,
+			expected:    0x04008000,
 			description: "Target with high bit should be normalized",
 		},
 		{

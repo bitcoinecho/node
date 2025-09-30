@@ -469,8 +469,8 @@ func TestPeer_Close_States(t *testing.T) {
 
 	// Test double close
 	peer4 := NewPeer("127.0.0.1:8333")
-	peer4.Connect() // Try to connect
-	peer4.Close()   // First close
+	peer4.Connect()     // Try to connect
+	peer4.Close()       // First close
 	err = peer4.Close() // Second close
 	if err != nil {
 		t.Errorf("Expected no error on double close, got: %v", err)

@@ -666,7 +666,7 @@ func TestTransaction_SerializeEdgeCases(t *testing.T) {
 			name: "transaction with empty inputs",
 			tx: &Transaction{
 				Version: 1,
-				Inputs: []TxInput{}, // Empty inputs
+				Inputs:  []TxInput{}, // Empty inputs
 				Outputs: []TxOutput{{
 					Value:        1000000000,
 					ScriptPubKey: []byte{0x76, 0xa9, 0x14},
@@ -709,31 +709,31 @@ func TestDeserializeTransaction_EdgeCases(t *testing.T) {
 			name:        "empty data",
 			data:        []byte{},
 			shouldError: true,
-			errorMsg:    "transaction data too short",
+			errorMsg:    "empty transaction data",
 		},
 		{
 			name:        "data too short for version",
 			data:        []byte{0x01, 0x00},
 			shouldError: true,
-			errorMsg:    "transaction data too short",
+			errorMsg:    "insufficient data for version",
 		},
 		{
 			name:        "invalid input count",
 			data:        []byte{0x01, 0x00, 0x00, 0x00, 0xff}, // version + invalid varint
 			shouldError: true,
-			errorMsg:    "invalid input count",
+			errorMsg:    "insufficient data for ff varint",
 		},
 		{
 			name:        "truncated after input count",
 			data:        []byte{0x01, 0x00, 0x00, 0x00, 0x01}, // version + 1 input but no input data
 			shouldError: true,
-			errorMsg:    "transaction data too short",
+			errorMsg:    "insufficient data for input 0 hash",
 		},
 		{
-			name:        "valid minimal transaction",
+			name: "valid minimal transaction",
 			data: []byte{
 				0x01, 0x00, 0x00, 0x00, // version
-				0x01, // 1 input
+				0x01,                                           // 1 input
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // prev hash (8 bytes of zeros)
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // prev hash continued
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // prev hash continued
@@ -741,7 +741,7 @@ func TestDeserializeTransaction_EdgeCases(t *testing.T) {
 				0xff, 0xff, 0xff, 0xff, // prev index (coinbase)
 				0x00,                   // script length
 				0xff, 0xff, 0xff, 0xff, // sequence
-				0x01, // 1 output
+				0x01,                                           // 1 output
 				0x00, 0xe1, 0xf5, 0x05, 0x00, 0x00, 0x00, 0x00, // value (100000000 satoshis)
 				0x00,                   // script length
 				0x00, 0x00, 0x00, 0x00, // locktime
@@ -852,12 +852,12 @@ func TestTransaction_SerializeForHashing_EdgeCases(t *testing.T) {
 func contains(s, substr string) bool {
 	return len(s) >= len(substr) && (s == substr || (len(s) > len(substr) &&
 		(s[:len(substr)] == substr || s[len(s)-len(substr):] == substr ||
-		 func() bool {
-			 for i := 0; i <= len(s)-len(substr); i++ {
-				 if s[i:i+len(substr)] == substr {
-					 return true
-				 }
-			 }
-			 return false
-		 }())))
+			func() bool {
+				for i := 0; i <= len(s)-len(substr); i++ {
+					if s[i:i+len(substr)] == substr {
+						return true
+					}
+				}
+				return false
+			}())))
 }

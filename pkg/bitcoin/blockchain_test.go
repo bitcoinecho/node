@@ -442,10 +442,10 @@ func createCoinbaseTransaction(amount uint64) *Transaction {
 	}
 
 	return NewTransaction(
-		1,                          // version
+		1,                  // version
 		[]TxInput{input},   // inputs
 		[]TxOutput{output}, // outputs
-		0,                          // locktime
+		0,                  // locktime
 	)
 }
 
@@ -479,10 +479,10 @@ func createUniqueCoinbaseTransaction(amount uint64, height int) *Transaction {
 	}
 
 	return NewTransaction(
-		1,                          // version
+		1,                  // version
 		[]TxInput{input},   // inputs
 		[]TxOutput{output}, // outputs
-		0,                          // locktime
+		0,                  // locktime
 	)
 }
 
@@ -592,7 +592,6 @@ func createForkChain(length int) []*Block {
 	}
 	return blocks
 }
-
 
 // TestBlockChain_GetBlockByHash tests retrieving blocks by hash
 func TestBlockChain_GetBlockByHash(t *testing.T) {

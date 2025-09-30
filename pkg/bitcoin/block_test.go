@@ -9,12 +9,12 @@ import (
 func TestNewBlock(t *testing.T) {
 	// Create a sample block header
 	header := NewBlockHeader(
-		1,                // version
-		ZeroHash, // previous block hash (genesis)
-		ZeroHash, // merkle root (placeholder)
-		1640995200,       // timestamp (Jan 1, 2022)
-		0x1d00ffff,       // difficulty bits
-		12345,            // nonce
+		1,          // version
+		ZeroHash,   // previous block hash (genesis)
+		ZeroHash,   // merkle root (placeholder)
+		1640995200, // timestamp (Jan 1, 2022)
+		0x1d00ffff, // difficulty bits
+		12345,      // nonce
 	)
 
 	// Create a sample coinbase transaction
@@ -363,12 +363,12 @@ func TestBlockHeader_Hash_GenesisBlock(t *testing.T) {
 
 	// Genesis block header
 	genesisHeader := NewBlockHeader(
-		1,                // version
-		ZeroHash, // previous block hash (genesis has no previous)
-		merkleRoot,       // merkle root
-		1231006505,       // timestamp (Jan 3, 2009 18:15:05 UTC)
-		0x1d00ffff,       // bits (difficulty)
-		2083236893,       // nonce
+		1,          // version
+		ZeroHash,   // previous block hash (genesis has no previous)
+		merkleRoot, // merkle root
+		1231006505, // timestamp (Jan 3, 2009 18:15:05 UTC)
+		0x1d00ffff, // bits (difficulty)
+		2083236893, // nonce
 	)
 
 	// Expected genesis block hash

@@ -10,9 +10,9 @@ import (
 func TestScriptEngine_Execute(t *testing.T) {
 	tests := []struct {
 		name       string
-		scriptHex  string              // Script as hex string
-		expected   bool                // Expected execution result
-		finalStack []string            // Expected final stack state (hex strings)
+		scriptHex  string      // Script as hex string
+		expected   bool        // Expected execution result
+		finalStack []string    // Expected final stack state (hex strings)
 		flags      ScriptFlags // Script verification flags
 	}{
 		// Basic stack operations
